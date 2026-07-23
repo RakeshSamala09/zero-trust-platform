@@ -8,7 +8,7 @@ spec:
 
   source:
     # Replace with your actual GitHub repo URL after pushing
-    repoURL: https://github.com/YOUR_GITHUB_USERNAME/zero-trust-platform.git
+    repoURL: https://github.com/RakeshSamala09/zero-trust-platform.git
     targetRevision: main
     path: sample-app/k8s
 
