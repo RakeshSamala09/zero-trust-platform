@@ -21,6 +21,9 @@ spec:
         runAsUser: 1000
         fsGroup: 1000
 
+      imagePullSecrets:
+        - name: ecr-pull-secret
+
       containers:
         - name: sample-app
           # Replace with your own image once pushed to Docker Hub / ECR
