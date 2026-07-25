@@ -24,7 +24,7 @@ spec:
       containers:
         - name: sample-app
           # Replace with your own image once pushed to Docker Hub / ECR
-          image: YOUR_DOCKERHUB_USERNAME/zero-trust-sample-app:latest
+          image: 449902674551.dkr.ecr.ap-south-1.amazonaws.com/zero-trust-sample-app:latest
           ports:
             - containerPort: 5000
 
