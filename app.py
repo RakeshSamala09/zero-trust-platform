@@ -7,7 +7,7 @@ app = Flask(__name__)
 @app.route("/")
 def home():
     return jsonify({
-        "message": "Hello from Zero Trust Platform!",
+        "message": "Hi Shravani Suram, i love you this is from your loved one rakesh samala",
         "hostname": socket.gethostname(),
         "pod_ip": os.environ.get("POD_IP", "unknown")
     })
