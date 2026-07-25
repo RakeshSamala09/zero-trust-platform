@@ -12,6 +12,13 @@ resource "aws_security_group" "k8s_master" {
     protocol    = "tcp"
     cidr_blocks = [var.my_ip_cidr]
   }  
+  ingress {
+    description = "Calico IP-in-IP encapsulation between nodes"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "4"
+    cidr_blocks = [var.vpc_cidr]
+  }
     
     # Kubernetes API server — only from your IP
   ingress {
@@ -142,6 +149,13 @@ resource "aws_security_group" "k8s_worker" {
     from_port   = 4789
     to_port     = 4789
     protocol    = "udp"
+    cidr_blocks = [var.vpc_cidr]
+  }
+  ingress {
+    description = "Calico IP-in-IP encapsulation between nodes"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "4"
     cidr_blocks = [var.vpc_cidr]
   }
 
