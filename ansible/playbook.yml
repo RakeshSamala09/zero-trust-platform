@@ -1,0 +1,261 @@
+---
+# Zero Trust Platform — Cluster Bootstrap
+# Run after `terraform apply` has created fresh EC2 instances.
+# Usage: ansible-playbook playbook.yml
+
+- name: Initialize Kubernetes control plane on master
+  hosts: master
+  become: true
+  vars_files:
+    - vars.yml
+  tasks:
+    - name: Wait for bootstrap user_data script to finish
+      wait_for:
+        path: /var/log/bootstrap-done.log
+        state: present
+        timeout: 300
+
+    - name: Check if cluster is already initialized
+      stat:
+        path: /etc/kubernetes/admin.conf
+      register: admin_conf
+
+    - name: Run kubeadm init
+      command: >
+        kubeadm init
+        --pod-network-cidr={{ kube_pod_network_cidr }}
+        --apiserver-cert-extra-sans={{ ansible_host }}
+      when: not admin_conf.stat.exists
+      register: kubeadm_init_result
+
+    - name: Create .kube directory for ubuntu user
+      file:
+        path: /home/ubuntu/.kube
+        state: directory
+        owner: ubuntu
+        group: ubuntu
+        mode: "0755"
+
+    - name: Copy admin.conf to ubuntu user's kubeconfig
+      copy:
+        src: /etc/kubernetes/admin.conf
+        dest: /home/ubuntu/.kube/config
+        remote_src: true
+        owner: ubuntu
+        group: ubuntu
+        mode: "0600"
+
+    - name: Install Calico CNI
+      become_user: ubuntu
+      command: kubectl apply -f {{ calico_manifest_url }}
+      environment:
+        KUBECONFIG: /home/ubuntu/.kube/config
+      changed_when: true
+
+    - name: Generate fresh kubeadm join command
+      command: kubeadm token create --print-join-command
+      register: join_command_raw
+
+    - name: Save join command to local controller for the workers play
+      copy:
+        content: "{{ join_command_raw.stdout }}"
+        dest: "{{ playbook_dir }}/.join-command.sh"
+      delegate_to: localhost
+      become: false
+
+- name: Join worker nodes to the cluster
+  hosts: workers
+  become: true
+  tasks:
+    - name: Check if node already joined
+      stat:
+        path: /etc/kubernetes/kubelet.conf
+      register: kubelet_conf
+
+    - name: Read join command from controller
+      set_fact:
+        join_command: "{{ lookup('file', playbook_dir + '/.join-command.sh') }}"
+
+    - name: Run kubeadm join
+      command: "{{ join_command }}"
+      when: not kubelet_conf.stat.exists
+
+- name: Confirm all nodes are ready
+  hosts: master
+  become: true
+  become_user: ubuntu
+  environment:
+    KUBECONFIG: /home/ubuntu/.kube/config
+  tasks:
+    - name: Wait for all nodes to report Ready
+      command: kubectl get nodes -o jsonpath='{.items[*].status.conditions[?(@.type=="Ready")].status}'
+      register: node_status
+      until: "'False' not in node_status.stdout"
+      retries: 20
+      delay: 15
+
+- name: Install ArgoCD
+  hosts: master
+  become: true
+  become_user: ubuntu
+  vars_files:
+    - vars.yml
+  environment:
+    KUBECONFIG: /home/ubuntu/.kube/config
+  tasks:
+    - name: Create argocd namespace
+      command: kubectl create namespace argocd
+      register: ns_result
+      failed_when: ns_result.rc != 0 and 'AlreadyExists' not in ns_result.stderr
+      changed_when: "'created' in ns_result.stdout"
+
+   - name: Apply ArgoCD manifests
+      command: kubectl apply --server-side --force-conflicts -n argocd -f {{ argocd_manifest_url }}
+      changed_when: true
+      
+    - name: Wait for ArgoCD server deployment to be available
+      command: kubectl rollout status deployment/argocd-server -n argocd --timeout=180s
+      changed_when: false
+
+    - name: Expose ArgoCD server via NodePort
+      command: >
+        kubectl patch svc argocd-server -n argocd
+        -p '{"spec": {"type": "NodePort"}}'
+      changed_when: true
+
+    - name: Retrieve ArgoCD initial admin password
+      command: >
+        kubectl -n argocd get secret argocd-initial-admin-secret
+        -o jsonpath="{.data.password}"
+      register: argocd_password_b64
+      changed_when: false
+
+    - name: Show ArgoCD admin password (decoded)
+      debug:
+        msg: "ArgoCD admin password: {{ argocd_password_b64.stdout | b64decode }}"
+
+    - name: Get ArgoCD NodePort
+      command: >
+        kubectl get svc argocd-server -n argocd
+        -o jsonpath='{.spec.ports[?(@.port==443)].nodePort}'
+      register: argocd_nodeport
+      changed_when: false
+
+    - name: Show ArgoCD access URL
+      debug:
+        msg: "ArgoCD UI: https://{{ ansible_host }}:{{ argocd_nodeport.stdout }}"
+
+- name: Create ECR pull secret and deploy sample app
+  hosts: master
+  become: true
+  become_user: ubuntu
+  vars_files:
+    - vars.yml
+  environment:
+    KUBECONFIG: /home/ubuntu/.kube/config
+  tasks:
+    - name: Clone/update the application repo
+      git:
+        repo: "{{ github_repo_url }}"
+        dest: /home/ubuntu/zero-trust-platform
+        version: main
+        force: true
+
+    - name: Get ECR login password
+      command: aws ecr get-login-password --region {{ aws_region }}
+      register: ecr_password
+      changed_when: false
+
+    - name: Create/update ECR pull secret
+      command: >
+        kubectl create secret docker-registry ecr-pull-secret
+        --docker-server={{ aws_account_id }}.dkr.ecr.{{ aws_region }}.amazonaws.com
+        --docker-username=AWS
+        --docker-password={{ ecr_password.stdout }}
+        -n default
+        --dry-run=client -o yaml
+      register: secret_manifest
+      changed_when: false
+
+    - name: Apply the ECR pull secret
+      shell: |
+        echo '{{ secret_manifest.stdout }}' | kubectl apply -f -
+      changed_when: true
+
+    - name: Apply the ArgoCD Application for the sample app
+      command: kubectl apply -f /home/ubuntu/zero-trust-platform/argocd-application.yml
+      changed_when: true
+
+- name: Install Istio service mesh
+  hosts: master
+  become: true
+  become_user: ubuntu
+  vars_files:
+    - vars.yml
+  environment:
+    KUBECONFIG: /home/ubuntu/.kube/config
+  tasks:
+    - name: Check if istioctl is already downloaded
+      stat:
+        path: "/home/ubuntu/istio-{{ istio_version }}/bin/istioctl"
+      register: istioctl_bin
+
+    - name: Download Istio
+      shell: |
+        cd /home/ubuntu && curl -L https://istio.io/downloadIstio | ISTIO_VERSION={{ istio_version }} sh -
+      when: not istioctl_bin.stat.exists
+
+    - name: Install Istio (demo profile)
+      command: "/home/ubuntu/istio-{{ istio_version }}/bin/istioctl install --set profile=demo -y"
+      changed_when: true
+
+    - name: Enable sidecar injection on default namespace
+      command: kubectl label namespace default istio-injection=enabled --overwrite
+      changed_when: true
+
+    - name: Restart sample-app to pick up sidecar
+      command: kubectl rollout restart deployment sample-app -n default
+      changed_when: true
+      failed_when: false  # ok if sample-app isn't deployed yet on first run
+
+    - name: Apply strict mTLS PeerAuthentication
+      copy:
+        dest: /home/ubuntu/strict-mtls.yaml
+        content: |
+          apiVersion: security.istio.io/v1beta1
+          kind: PeerAuthentication
+          metadata:
+            name: default
+            namespace: istio-system
+          spec:
+            mtls:
+              mode: STRICT
+
+    - name: Apply the PeerAuthentication policy
+      command: kubectl apply -f /home/ubuntu/strict-mtls.yaml
+      changed_when: true
+
+- name: Install OPA Gatekeeper and policies
+  hosts: master
+  become: true
+  become_user: ubuntu
+  vars_files:
+    - vars.yml
+  environment:
+    KUBECONFIG: /home/ubuntu/.kube/config
+  tasks:
+    - name: Apply Gatekeeper manifests
+      command: kubectl apply -f {{ gatekeeper_manifest_url }}
+      changed_when: true
+
+    - name: Wait for Gatekeeper controller to be ready
+      command: kubectl rollout status deployment/gatekeeper-controller-manager -n gatekeeper-system --timeout=120s
+      changed_when: false
+
+    - name: Apply custom Gatekeeper ConstraintTemplate (block privileged containers)
+      command: kubectl apply -f /home/ubuntu/zero-trust-platform/gatekeeper/Constrainttemplateprivileged.yaml
+      changed_when: true
+
+    - name: Apply the Constraint enforcing the policy
+      command: kubectl apply -f /home/ubuntu/zero-trust-platform/gatekeeper/Constraintprivileged.yaml
+      changed_when: true
