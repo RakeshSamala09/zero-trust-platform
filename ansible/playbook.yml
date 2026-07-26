@@ -161,6 +161,29 @@
         version: main
         force: true
 
+    - name: Check if AWS CLI is installed
+      command: which aws
+      register: aws_cli_check
+      failed_when: false
+      changed_when: false
+
+    - name: Ensure unzip is installed
+      become_user: root
+      apt:
+        name: unzip
+        state: present
+        update_cache: true
+      when: aws_cli_check.rc != 0
+
+    - name: Install AWS CLI v2
+      become_user: root
+      shell: |
+        cd /tmp
+        curl -s "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+        unzip -q -o awscliv2.zip
+        ./aws/install
+      when: aws_cli_check.rc != 0
+
     - name: Get ECR login password
       command: aws ecr get-login-password --region {{ aws_region }}
       register: ecr_password
