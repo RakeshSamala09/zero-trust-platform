@@ -109,10 +109,10 @@
       failed_when: ns_result.rc != 0 and 'AlreadyExists' not in ns_result.stderr
       changed_when: "'created' in ns_result.stdout"
 
-   - name: Apply ArgoCD manifests
+    - name: Apply ArgoCD manifests
       command: kubectl apply --server-side --force-conflicts -n argocd -f {{ argocd_manifest_url }}
       changed_when: true
-      
+
     - name: Wait for ArgoCD server deployment to be available
       command: kubectl rollout status deployment/argocd-server -n argocd --timeout=180s
       changed_when: false
