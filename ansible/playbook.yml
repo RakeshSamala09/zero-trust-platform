@@ -282,3 +282,105 @@
     - name: Apply the Constraint enforcing the policy
       command: kubectl apply -f /home/ubuntu/zero-trust-platform/gatekeeper/Constraintprivileged.yaml
       changed_when: true
+
+- name: Label the dedicated monitoring node
+  hosts: monitoring
+  become: true
+  tasks:
+    - name: Label node for monitoring workloads
+      become_user: ubuntu
+      delegate_to: "{{ groups['master'][0] }}"
+      environment:
+        KUBECONFIG: /home/ubuntu/.kube/config
+      command: kubectl label node {{ ansible_hostname }} workload=monitoring --overwrite
+      changed_when: true
+
+- name: Install Prometheus, Grafana, and Istio metric integration
+  hosts: master
+  become: true
+  become_user: ubuntu
+  vars_files:
+    - vars.yml
+  environment:
+    KUBECONFIG: /home/ubuntu/.kube/config
+  tasks:
+    - name: Check if Helm is already installed
+      command: which helm
+      register: helm_check
+      failed_when: false
+      changed_when: false
+
+    - name: Install Helm
+      shell: |
+        curl -s https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+      become_user: root
+      when: helm_check.rc != 0
+
+    - name: Add prometheus-community Helm repo
+      command: helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+      register: repo_add_result
+      failed_when: false
+      changed_when: "'has been added' in repo_add_result.stdout"
+
+    - name: Update Helm repos
+      command: helm repo update
+      changed_when: true
+
+    - name: Check if monitoring stack is already installed
+      command: helm list -n {{ monitoring_namespace }} -o json
+      register: helm_list_result
+      changed_when: false
+
+    - name: Install kube-prometheus-stack
+      command: >
+        helm install {{ monitoring_release_name }} prometheus-community/kube-prometheus-stack
+        --namespace {{ monitoring_namespace }}
+        --create-namespace
+        --set prometheus.prometheusSpec.nodeSelector.workload=monitoring
+        --set grafana.nodeSelector.workload=monitoring
+        --set alertmanager.alertmanagerSpec.nodeSelector.workload=monitoring
+      when: monitoring_release_name not in helm_list_result.stdout
+      changed_when: true
+
+    - name: Wait for Grafana deployment to be available
+      command: kubectl rollout status deployment/{{ monitoring_release_name }}-grafana -n {{ monitoring_namespace }} --timeout=180s
+      changed_when: false
+
+    - name: Expose Grafana via NodePort
+      command: >
+        kubectl patch svc {{ monitoring_release_name }}-grafana -n {{ monitoring_namespace }}
+        -p '{"spec": {"type": "NodePort"}}'
+      changed_when: true
+
+    - name: Retrieve Grafana admin password
+      command: >
+        kubectl get secret {{ monitoring_release_name }}-grafana -n {{ monitoring_namespace }}
+        -o jsonpath="{.data.admin-password}"
+      register: grafana_password_b64
+      changed_when: false
+
+    - name: Show Grafana admin password (decoded)
+      debug:
+        msg: "Grafana admin password: {{ grafana_password_b64.stdout | b64decode }}"
+
+    - name: Get Grafana NodePort
+      command: >
+        kubectl get svc {{ monitoring_release_name }}-grafana -n {{ monitoring_namespace }}
+        -o jsonpath='{.spec.ports[?(@.port==80)].nodePort}'
+      register: grafana_nodeport
+      changed_when: false
+
+    - name: Show Grafana access URL
+      debug:
+        msg: "Grafana UI: http://{{ ansible_host }}:{{ grafana_nodeport.stdout }} (username: admin)"
+
+    - name: Ensure app repo is up to date
+      git:
+        repo: "{{ github_repo_url }}"
+        dest: /home/ubuntu/zero-trust-platform
+        version: main
+        force: true
+
+    - name: Apply Istio ServiceMonitor and PodMonitor for mesh metrics
+      command: kubectl apply -f /home/ubuntu/zero-trust-platform/monitoring/istio-servicemonitor.yaml
+      changed_when: true

@@ -1,0 +1,17 @@
+# Copy to inventory.ini and fill in real IPs.
+# Get these from: terraform output master_public_ip / worker_public_ips
+
+[master]
+k8s-master ansible_host=13.235.13.101
+
+[workers]
+k8s-worker-1 ansible_host=43.204.36.114
+k8s-worker-2 ansible_host=13.234.217.98
+k8s-worker-3 ansible_host=13.206.205.90
+
+# Same host as k8s-worker-3 above — Ansible allows a host to belong to
+# multiple groups. This lets the monitoring play target it specifically.
+[monitoring]
+k8s-worker-3 ansible_host=13.206.205.90
+[all:vars]
+ansible_python_interpreter=/usr/bin/python3

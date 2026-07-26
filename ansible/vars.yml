@@ -1,0 +1,11 @@
+aws_region: ap-south-1
+aws_account_id: "449902674551"
+ecr_repository: zero-trust-sample-app
+github_repo_url: https://github.com/RakeshSamala09/zero-trust-platform.git
+kube_pod_network_cidr: 192.168.0.0/16
+calico_manifest_url: https://raw.githubusercontent.com/projectcalico/calico/v3.28.0/manifests/calico.yaml
+argocd_manifest_url: https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+gatekeeper_manifest_url: https://raw.githubusercontent.com/open-policy-agent/gatekeeper/release-3.16/deploy/gatekeeper.yaml
+istio_version: "1.30.3"
+monitoring_namespace: monitoring
+monitoring_release_name: monitoring
