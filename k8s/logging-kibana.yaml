@@ -4,12 +4,14 @@ metadata:
   name: kibana
   namespace: logging
 spec:
-  type: ClusterIP
+  type: NodePort
   selector:
     app: kibana
   ports:
-    - port: 5601
+    - name: http
+      port: 5601
       targetPort: 5601
+      nodePort: 30601  
 ---
 apiVersion: apps/v1
 kind: Deployment
