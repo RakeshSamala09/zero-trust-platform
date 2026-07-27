@@ -8,7 +8,7 @@ data:
     [SERVICE]
         Flush         5
         Daemon        Off
-        Log_Level     info
+        Log_Level     debug
         Parsers_File  parsers.conf
 
     [INPUT]
