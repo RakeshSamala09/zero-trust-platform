@@ -384,3 +384,186 @@
     - name: Apply Istio ServiceMonitor and PodMonitor for mesh metrics
       command: kubectl apply -f /home/ubuntu/zero-trust-platform/monitoring/istio-servicemonitor.yaml
       changed_when: true
+
+- name: Label the dedicated logging node
+  hosts: logging
+  become: true
+  tasks:
+    - name: Label node for logging workloads
+      become_user: ubuntu
+      delegate_to: "{{ groups['master'][0] }}"
+      environment:
+        KUBECONFIG: /home/ubuntu/.kube/config
+      command: kubectl label node {{ ansible_hostname }} workload=logging --overwrite
+      changed_when: true
+
+- name: Install EBS CSI driver and StorageClass
+  hosts: master
+  become: true
+  become_user: ubuntu
+  vars_files:
+    - vars.yml
+  environment:
+    KUBECONFIG: /home/ubuntu/.kube/config
+  tasks:
+    - name: Add aws-ebs-csi-driver Helm repo
+      command: helm repo add aws-ebs-csi-driver https://kubernetes-sigs.github.io/aws-ebs-csi-driver
+      register: repo_add_result
+      failed_when: false
+      changed_when: "'has been added' in repo_add_result.stdout"
+
+    - name: Update Helm repos
+      command: helm repo update
+      changed_when: true
+
+    - name: Check if EBS CSI driver is already installed
+      command: helm list -n kube-system -o json
+      register: helm_list_kube_system
+      changed_when: false
+
+    - name: Install AWS EBS CSI driver
+      command: helm install aws-ebs-csi-driver aws-ebs-csi-driver/aws-ebs-csi-driver --namespace kube-system
+      when: "'aws-ebs-csi-driver' not in helm_list_kube_system.stdout"
+      changed_when: true
+
+    - name: Wait for EBS CSI controller to be ready
+      command: kubectl rollout status deployment/ebs-csi-controller -n kube-system --timeout=180s
+      changed_when: false
+
+    - name: Apply EBS StorageClass
+      copy:
+        dest: /home/ubuntu/ebs-storageclass.yaml
+        content: |
+          apiVersion: storage.k8s.io/v1
+          kind: StorageClass
+          metadata:
+            name: ebs-gp3
+            annotations:
+              storageclass.kubernetes.io/is-default-class: "true"
+          provisioner: ebs.csi.aws.com
+          volumeBindingMode: WaitForFirstConsumer
+          parameters:
+            type: gp3
+          reclaimPolicy: Delete
+
+    - name: Apply the StorageClass to the cluster
+      command: kubectl apply -f /home/ubuntu/ebs-storageclass.yaml
+      changed_when: true
+
+- name: Install ELK stack with persistent storage
+  hosts: master
+  become: true
+  become_user: ubuntu
+  vars_files:
+    - vars.yml
+  environment:
+    KUBECONFIG: /home/ubuntu/.kube/config
+  tasks:
+    - name: Add elastic Helm repo
+      command: helm repo add elastic https://helm.elastic.co
+      register: elastic_repo_result
+      failed_when: false
+      changed_when: "'has been added' in elastic_repo_result.stdout"
+
+    - name: Add fluent Helm repo
+      command: helm repo add fluent https://fluent.github.io/helm-charts
+      register: fluent_repo_result
+      failed_when: false
+      changed_when: "'has been added' in fluent_repo_result.stdout"
+
+    - name: Update Helm repos
+      command: helm repo update
+      changed_when: true
+
+    - name: Check if Elasticsearch is already installed
+      command: helm list -n {{ monitoring_namespace }} -o json
+      register: helm_list_logging
+      changed_when: false
+
+    - name: Install Elasticsearch with persistent storage
+      command: >
+        helm install elasticsearch elastic/elasticsearch
+        --namespace {{ monitoring_namespace }}
+        --set replicas=1
+        --set minimumMasterNodes=1
+        --set resources.requests.cpu=200m
+        --set resources.requests.memory=1Gi
+        --set resources.limits.memory=2Gi
+        --set nodeSelector.workload=logging
+        --set volumeClaimTemplate.storageClassName=ebs-gp3
+        --set volumeClaimTemplate.resources.requests.storage=10Gi
+      when: "'\"name\":\"elasticsearch\"' not in helm_list_logging.stdout"
+      changed_when: true
+
+    - name: Wait for Elasticsearch to be ready
+      command: kubectl wait --for=condition=Ready pod/elasticsearch-master-0 -n {{ monitoring_namespace }} --timeout=300s
+      changed_when: false
+
+    - name: Retrieve Elasticsearch password
+      command: >
+        kubectl get secrets --namespace {{ monitoring_namespace }} elasticsearch-master-credentials
+        -o jsonpath="{.data.password}"
+      register: es_password_b64
+      changed_when: false
+
+    - name: Set decoded ES password as a fact
+      set_fact:
+        es_password: "{{ es_password_b64.stdout | b64decode }}"
+
+    - name: Show Elasticsearch password
+      debug:
+        msg: "Elasticsearch 'elastic' user password: {{ es_password }}"
+
+    - name: Install Kibana
+      command: >
+        helm install kibana elastic/kibana
+        --namespace {{ monitoring_namespace }}
+        --set nodeSelector.workload=logging
+      when: "'\"name\":\"kibana\"' not in helm_list_logging.stdout"
+      changed_when: true
+      register: kibana_install_result
+      failed_when: false
+
+    - name: Get Kibana NodePort
+      command: >
+        kubectl get svc kibana-kibana -n {{ monitoring_namespace }}
+        -o jsonpath='{.spec.ports[?(@.port==5601)].nodePort}'
+      register: kibana_nodeport
+      changed_when: false
+      failed_when: false
+
+    - name: Expose Kibana via NodePort
+      command: >
+        kubectl patch svc kibana-kibana -n {{ monitoring_namespace }}
+        -p '{"spec": {"type": "NodePort"}}'
+      changed_when: true
+      failed_when: false
+
+    - name: Write Fluent Bit output config
+      copy:
+        dest: /home/ubuntu/fluent-bit-values.yaml
+        content: |
+          config:
+            outputs: |
+              [OUTPUT]
+                  Name                  es
+                  Match                 *
+                  Host                  elasticsearch-master
+                  Port                  9200
+                  HTTP_User             elastic
+                  HTTP_Passwd           {{ es_password }}
+                  tls                   On
+                  tls.verify            Off
+                  Suppress_Type_Name    On
+
+    - name: Install Fluent Bit
+      command: >
+        helm install fluent-bit fluent/fluent-bit
+        --namespace {{ monitoring_namespace }}
+        -f /home/ubuntu/fluent-bit-values.yaml
+      when: "'\"name\":\"fluent-bit\"' not in helm_list_logging.stdout"
+      changed_when: true
+
+    - name: Show Kibana access URL
+      debug:
+        msg: "Kibana UI: http://{{ ansible_host }}:{{ kibana_nodeport.stdout }} (username: elastic)"
