@@ -101,8 +101,19 @@ resource "aws_instance" "k8s_master" {
   }
 }
 
+# Elastic IP — keeps the master's public IP fixed even if the instance
+# stops/starts. Free while attached to a running instance.
+resource "aws_eip" "master" {
+  instance = aws_instance.k8s_master.id
+  domain   = "vpc"
+
+  tags = {
+    Name = "${var.project_name}-master-eip"
+  }
+}
+
 resource "aws_instance" "k8s_worker" {
-  count                        = 2
+  count                        = 4
   ami                          = data.aws_ami.ubuntu.id
   instance_type                = var.instance_type
   subnet_id                    = aws_subnet.public.id
@@ -120,15 +131,5 @@ resource "aws_instance" "k8s_worker" {
   tags = {
     Name = "${var.project_name}-worker-${count.index + 1}"
     Role = "worker"
-  }
-}
-# Elastic IP — keeps the master's public IP fixed even if the instance
-# stops/starts. Free while attached to a running instance.
-resource "aws_eip" "master" {
-  instance = aws_instance.k8s_master.id
-  domain   = "vpc"
-
-  tags = {
-    Name = "${var.project_name}-master-eip"
   }
 }

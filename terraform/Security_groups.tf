@@ -10,7 +10,7 @@ resource "aws_security_group" "k8s_master" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = [var.my_ip_cidr]
+    cidr_blocks = ["0.0.0.0/0"]
   }  
   ingress {
     description = "Calico IP-in-IP encapsulation between nodes"

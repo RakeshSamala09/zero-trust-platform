@@ -35,9 +35,9 @@ variable "my_ip_cidr" {
 }
 
 variable "instance_type" {
-  description = "EC2 instance type for all 3 nodes"
+  description = "EC2 instance type for all 5 nodes"
   type        = string
-  default     = "t3.medium"
+  default     = "m7i-flex.large"
 }
 
 variable "key_pair_name" {

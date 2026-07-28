@@ -4,7 +4,6 @@
 # instance profile — never static access keys baked into the box.
 ########################################
 
-
 resource "aws_iam_role" "ec2_node_role" {
   name = "${var.project_name}-ec2-node-role"
 
@@ -18,14 +17,11 @@ resource "aws_iam_role" "ec2_node_role" {
       }
     }]
   })
+
+  tags = {
+    Name = "${var.project_name}-ec2-node-role"
+  }
 }
-
-
-
-
-
-
-
 
 # Pull permission for ECR (Jenkins builds push here, nodes pull from here)
 resource "aws_iam_role_policy_attachment" "ecr_read_only" {
@@ -50,6 +46,16 @@ resource "aws_iam_role_policy_attachment" "cloudwatch_agent" {
 resource "aws_iam_instance_profile" "ec2_node_profile" {
   name = "${var.project_name}-ec2-node-profile"
   role = aws_iam_role.ec2_node_role.name
+}
+
+# EBS CSI driver permissions — needed so nodes can dynamically create,
+# attach, and manage EBS volumes for PersistentVolumeClaims. Attached to
+# the node role (not a pod-identity role) since the self-hosted OIDC
+# provider's kube-apiserver wiring (--service-account-issuer) hasn't been
+# completed yet — this is the pragmatic, known-working path for now.
+resource "aws_iam_role_policy_attachment" "ebs_csi_driver" {
+  role       = aws_iam_role.ec2_node_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
 }
 
 ########################################
