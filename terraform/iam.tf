@@ -23,10 +23,15 @@ resource "aws_iam_role" "ec2_node_role" {
   }
 }
 
+
 # Pull permission for ECR (Jenkins builds push here, nodes pull from here)
 resource "aws_iam_role_policy_attachment" "ecr_read_only" {
   role       = aws_iam_role.ec2_node_role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+}
+resource "aws_iam_user_policy_attachment" "github_actions_ec2" {
+  user       = "github-actions-ecr-push"
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2FullAccess"
 }
 
 # SSM so you can shell in without opening SSH broadly later if you want

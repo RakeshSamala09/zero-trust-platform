@@ -11,7 +11,7 @@ resource "aws_security_group" "k8s_master" {
     to_port     = 22
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
-  }  
+  }
   ingress {
     description = "Calico IP-in-IP encapsulation between nodes"
     from_port   = 0
@@ -19,8 +19,8 @@ resource "aws_security_group" "k8s_master" {
     protocol    = "4"
     cidr_blocks = [var.vpc_cidr]
   }
-    
-    # Kubernetes API server — only from your IP
+
+  # Kubernetes API server — only from your IP
   ingress {
     description = "K8s API server from admin IP only"
     from_port   = 6443
@@ -37,9 +37,9 @@ resource "aws_security_group" "k8s_master" {
     protocol    = "tcp"
     cidr_blocks = [var.vpc_cidr]
   }
-  
 
-  
+
+
 
   # etcd — only from within the VPC (worker nodes never need this, only master-to-master in HA setups)
   ingress {

@@ -20,8 +20,8 @@ resource "aws_internet_gateway" "main" {
 # Nodes get public IPs directly; locked down via security group instead.
 resource "aws_subnet" "public" {
   vpc_id                  = aws_vpc.main.id
-  cidr_block               = var.public_subnet_cidr
-  availability_zone        = var.availability_zone
+  cidr_block              = var.public_subnet_cidr
+  availability_zone       = var.availability_zone
   map_public_ip_on_launch = true
 
   tags = {
