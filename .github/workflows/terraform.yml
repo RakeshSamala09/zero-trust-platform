@@ -156,3 +156,23 @@ jobs:
 
       - name: Terraform Apply
         run: terraform apply -input=false -auto-approve tfplan
+
+      - name: Setup SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_PRIVATE_KEY }}" > ~/.ssh/zero-trust-key.pem
+          chmod 600 ~/.ssh/zero-trust-key.pem
+
+      - name: Install Ansible
+        run: |
+          sudo apt update
+          sudo apt install -y ansible
+
+      - name: Test Ansible Inventory
+        run: |
+          cat ../ansible/inventory.ini
+
+      - name: Run Ansible Playbook
+        working-directory: ../ansible
+        run: |
+          ansible-playbook -i inventory.ini playbook.yml
