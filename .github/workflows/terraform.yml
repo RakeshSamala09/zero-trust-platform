@@ -157,6 +157,11 @@ jobs:
       - name: Terraform Apply
         run: terraform apply -input=false -auto-approve tfplan
 
+
+      - name: Wait for EC2 instances
+        run: |
+          sleep 90
+
       - name: Setup SSH Key
         run: |
           mkdir -p ~/.ssh
@@ -166,7 +171,8 @@ jobs:
       - name: Install Ansible
         run: |
           sudo apt update
-          sudo apt install -y ansible
+          sudo DEBIAN_FRONTEND=noninteractive apt install -y ansible
+          ansible --version
 
       - name: Test Ansible Inventory
         run: |
@@ -175,4 +181,4 @@ jobs:
       - name: Run Ansible Playbook
         working-directory: ../ansible
         run: |
-          ansible-playbook -i inventory.ini playbook.yml
+          ansible-playbook -i inventory.ini playbook.yml  
