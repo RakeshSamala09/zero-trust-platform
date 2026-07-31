@@ -7,6 +7,12 @@ on:
   pull_request:
     branches:
       - main
+  workflow_dispatch:
+    inputs:
+      my_ip_cidr:
+        description: 'Your current public IP in CIDR form (e.g. 49.207.115.42/32). Leave blank to use the saved MY_IP_CIDR secret instead.'
+        required: false
+        default: ''
 
 permissions:
   contents: read
@@ -17,6 +23,10 @@ env:
   TF_WORKING_DIR: "terraform"   # your .tf files live in the /terraform subfolder
   TF_VERSION: "1.9.5"
   AWS_REGION: "ap-south-1"       # matches your variable.tf default
+  # Use the manual input if this run was triggered via workflow_dispatch with a value,
+  # otherwise fall back to the MY_IP_CIDR secret (used for push/PR-triggered runs).
+  TF_VAR_my_ip_cidr: ${{ github.event.inputs.my_ip_cidr != '' && github.event.inputs.my_ip_cidr || secrets.MY_IP_CIDR }}
+  TF_VAR_key_pair_name: ${{ secrets.KEY_PAIR_NAME }}
 
 jobs:
   # ---------------------------------------------------------------------
