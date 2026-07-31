@@ -33,6 +33,10 @@ resource "aws_iam_user_policy_attachment" "github_actions_ec2" {
   user       = "github-actions-ecr-push"
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2FullAccess"
 }
+resource "aws_iam_user_policy_attachment" "github_actions_s3" {
+  user       = "github-actions-ecr-push"
+  policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+}
 
 # SSM so you can shell in without opening SSH broadly later if you want
 # (optional zero-trust upgrade path: swap SSH entirely for SSM Session Manager)
