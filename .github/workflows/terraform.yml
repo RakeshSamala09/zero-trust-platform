@@ -189,6 +189,6 @@ jobs:
           cat ../ansible/inventory.ini
 
       - name: Run Ansible Playbook
-        working-directory: ../ansible
+        working-directory: ansible
         run: |
           ansible-playbook -i inventory.ini playbook.yml
