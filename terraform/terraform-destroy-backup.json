@@ -1,0 +1,2097 @@
+{
+  "version": 4,
+  "terraform_version": "1.15.8",
+  "serial": 8,
+  "lineage": "7f8cc9ad-74ea-32cf-93cf-9f1f9362cdf0",
+  "outputs": {
+    "estimated_hourly_cost": {
+      "value": "3x t3.medium = ~$0.125/hr total (~$3/day if left running). STOP or DESTROY instances when not actively working.",
+      "type": "string"
+    },
+    "jenkins_pod_role_arn": {
+      "value": "arn:aws:iam::449902674551:role/zero-trust-platform-jenkins-pod-role",
+      "type": "string"
+    },
+    "master_public_ip": {
+      "value": "13.207.50.82",
+      "type": "string"
+    },
+    "oidc_issuer_url": {
+      "value": "zero-trust-platform-oidc-449902674551.s3.ap-south-1.amazonaws.com",
+      "type": "string"
+    },
+    "oidc_provider_arn": {
+      "value": "arn:aws:iam::449902674551:oidc-provider/zero-trust-platform-oidc-449902674551.s3.ap-south-1.amazonaws.com",
+      "type": "string"
+    },
+    "oidc_s3_bucket": {
+      "value": "zero-trust-platform-oidc-449902674551",
+      "type": "string"
+    },
+    "ssh_master": {
+      "value": "ssh -i \u003cyour-key\u003e.pem ubuntu@13.207.50.82",
+      "type": "string"
+    },
+    "ssh_workers": {
+      "value": [
+        "ssh -i \u003cyour-key\u003e.pem ubuntu@13.233.112.68",
+        "ssh -i \u003cyour-key\u003e.pem ubuntu@65.0.89.57",
+        "ssh -i \u003cyour-key\u003e.pem ubuntu@65.0.91.98",
+        "ssh -i \u003cyour-key\u003e.pem ubuntu@13.127.212.231"
+      ],
+      "type": [
+        "tuple",
+        [
+          "string",
+          "string",
+          "string",
+          "string"
+        ]
+      ]
+    },
+    "worker_public_ips": {
+      "value": [
+        "13.233.112.68",
+        "65.0.89.57",
+        "65.0.91.98",
+        "13.127.212.231"
+      ],
+      "type": [
+        "tuple",
+        [
+          "string",
+          "string",
+          "string",
+          "string"
+        ]
+      ]
+    }
+  },
+  "resources": [
+    {
+      "mode": "data",
+      "type": "aws_ami",
+      "name": "ubuntu",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "allow_unsafe_filter": null,
+            "architecture": "x86_64",
+            "arn": "arn:aws:ec2:ap-south-1::image/ami-0aa761682283b4cc8",
+            "block_device_mappings": [
+              {
+                "device_name": "/dev/sda1",
+                "ebs": {
+                  "delete_on_termination": "true",
+                  "encrypted": "false",
+                  "iops": "0",
+                  "snapshot_id": "snap-057d1cfb8044888f3",
+                  "throughput": "0",
+                  "volume_initialization_rate": "0",
+                  "volume_size": "8",
+                  "volume_type": "gp2"
+                },
+                "no_device": "",
+                "virtual_name": ""
+              },
+              {
+                "device_name": "/dev/sdb",
+                "ebs": {},
+                "no_device": "",
+                "virtual_name": "ephemeral0"
+              },
+              {
+                "device_name": "/dev/sdc",
+                "ebs": {},
+                "no_device": "",
+                "virtual_name": "ephemeral1"
+              }
+            ],
+            "boot_mode": "uefi-preferred",
+            "creation_date": "2026-07-31T07:24:53.000Z",
+            "deprecation_time": "2028-07-31T07:24:53.000Z",
+            "description": "Canonical, Ubuntu, 22.04, amd64 jammy image",
+            "ena_support": true,
+            "executable_users": null,
+            "filter": [
+              {
+                "name": "name",
+                "values": [
+                  "ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"
+                ]
+              },
+              {
+                "name": "virtualization-type",
+                "values": [
+                  "hvm"
+                ]
+              }
+            ],
+            "hypervisor": "xen",
+            "id": "ami-0aa761682283b4cc8",
+            "image_id": "ami-0aa761682283b4cc8",
+            "image_location": "amazon/ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-20260731",
+            "image_owner_alias": "amazon",
+            "image_type": "machine",
+            "imds_support": "",
+            "include_deprecated": false,
+            "kernel_id": "",
+            "last_launched_time": "",
+            "most_recent": true,
+            "name": "ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-20260731",
+            "name_regex": null,
+            "owner_id": "099720109477",
+            "owners": [
+              "099720109477"
+            ],
+            "platform": "",
+            "platform_details": "Linux/UNIX",
+            "product_codes": [],
+            "public": true,
+            "ramdisk_id": "",
+            "region": "ap-south-1",
+            "root_device_name": "/dev/sda1",
+            "root_device_type": "ebs",
+            "root_snapshot_id": "snap-057d1cfb8044888f3",
+            "sriov_net_support": "simple",
+            "state": "available",
+            "state_reason": {
+              "code": "UNSET",
+              "message": "UNSET"
+            },
+            "tags": {},
+            "timeouts": null,
+            "tpm_support": "",
+            "uefi_data": null,
+            "usage_operation": "RunInstances",
+            "virtualization_type": "hvm"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0
+        }
+      ]
+    },
+    {
+      "mode": "data",
+      "type": "aws_caller_identity",
+      "name": "current",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "account_id": "449902674551",
+            "arn": "arn:aws:iam::449902674551:user/github-actions-ecr-push",
+            "id": "449902674551",
+            "user_id": "AIDAWRQCKAJ32AJLVCHY7"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0
+        }
+      ]
+    },
+    {
+      "mode": "data",
+      "type": "tls_certificate",
+      "name": "oidc_s3_cert",
+      "provider": "provider[\"registry.terraform.io/hashicorp/tls\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "certificates": [
+              {
+                "cert_pem": "-----BEGIN CERTIFICATE-----\nMIIEkjCCA3qgAwIBAgITBn+USionzfP6wq4rAfkI7rnExjANBgkqhkiG9w0BAQsF\nADCBmDELMAkGA1UEBhMCVVMxEDAOBgNVBAgTB0FyaXpvbmExEzARBgNVBAcTClNj\nb3R0c2RhbGUxJTAjBgNVBAoTHFN0YXJmaWVsZCBUZWNobm9sb2dpZXMsIEluYy4x\nOzA5BgNVBAMTMlN0YXJmaWVsZCBTZXJ2aWNlcyBSb290IENlcnRpZmljYXRlIEF1\ndGhvcml0eSAtIEcyMB4XDTE1MDUyNTEyMDAwMFoXDTM3MTIzMTAxMDAwMFowOTEL\nMAkGA1UEBhMCVVMxDzANBgNVBAoTBkFtYXpvbjEZMBcGA1UEAxMQQW1hem9uIFJv\nb3QgQ0EgMTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBALJ4gHHKeNXj\nca9HgFB0fW7Y14h29Jlo91ghYPl0hAEvrAIthtOgQ3pOsqTQNroBvo3bSMgHFzZM\n9O6II8c+6zf1tRn4SWiw3te5djgdYZ6k/oI2peVKVuRF4fn9tBb6dNqcmzU5L/qw\nIFAGbHrQgLKm+a/sRxmPUDgH3KKHOVj4utWp+UhnMJbulHheb4mjUcAwhmahRWa6\nVOujw5H5SNz/0egwLX0tdHA114gk957EWW67c4cX8jJGKLhD+rcdqsq08p8kDi1L\n93FcXmn/6pUCyziKrlA4b9v7LWIbxcceVOF34GfID5yHI9Y/QCB/IIDEgEw+OyQm\njgSubJrIqg0CAwEAAaOCATEwggEtMA8GA1UdEwEB/wQFMAMBAf8wDgYDVR0PAQH/\nBAQDAgGGMB0GA1UdDgQWBBSEGMyFNOy8DJSULghZnMeyEE4KCDAfBgNVHSMEGDAW\ngBScXwDfqgHXMCs4iKK4bUqc8hGRgzB4BggrBgEFBQcBAQRsMGowLgYIKwYBBQUH\nMAGGImh0dHA6Ly9vY3NwLnJvb3RnMi5hbWF6b250cnVzdC5jb20wOAYIKwYBBQUH\nMAKGLGh0dHA6Ly9jcnQucm9vdGcyLmFtYXpvbnRydXN0LmNvbS9yb290ZzIuY2Vy\nMD0GA1UdHwQ2MDQwMqAwoC6GLGh0dHA6Ly9jcmwucm9vdGcyLmFtYXpvbnRydXN0\nLmNvbS9yb290ZzIuY3JsMBEGA1UdIAQKMAgwBgYEVR0gADANBgkqhkiG9w0BAQsF\nAAOCAQEAYjdCXLwQtT6LLOkMm2xF4gcAevnFWAu5CIw+7bMlPLVvUOTNNWqnkzSW\nMiGpSESrnO09tKpzbeR/FoCJbM8oAxiDR3mjEH4wW6w7sGDgd9QIpuEdfF7Au/ma\neyKdpwAJfqxGF4PcnCZXmTA5YpaP7dreqsXMGz7KQ2hsVxa81Q4gLv7/wmpdLqBK\nbRRYh5TmOTFffHPLkIhqhBGWJ6bt2YFGpn6jcgAKUj6DiAdjd4lpFw85hdKrCEVN\n0FE6/V1dN2RMfjCyVSRCnTawXZwXgWHxyvkQAiSr6w10kY17RSlQOYiypok1JR4U\nakcjMS9cmvqtmg5iUaQqqcT5NJ0hGA==\n-----END CERTIFICATE-----\n",
+                "is_ca": true,
+                "issuer": "CN=Starfield Services Root Certificate Authority - G2,O=Starfield Technologies\\, Inc.,L=Scottsdale,ST=Arizona,C=US",
+                "max_path_length": -1,
+                "not_after": "2037-12-31T01:00:00Z",
+                "not_before": "2015-05-25T12:00:00Z",
+                "public_key_algorithm": "RSA",
+                "serial_number": "144918191876577076464031512351042010504348870",
+                "sha1_fingerprint": "06b25927c42a721631c1efd9431e648fa62e1e39",
+                "signature_algorithm": "SHA256-RSA",
+                "subject": "CN=Amazon Root CA 1,O=Amazon,C=US",
+                "version": 3
+              },
+              {
+                "cert_pem": "-----BEGIN CERTIFICATE-----\nMIIEXjCCA0agAwIBAgITB3MSOAudZoijOx7Zv5zNpo4ODzANBgkqhkiG9w0BAQsF\nADA5MQswCQYDVQQGEwJVUzEPMA0GA1UEChMGQW1hem9uMRkwFwYDVQQDExBBbWF6\nb24gUm9vdCBDQSAxMB4XDTIyMDgyMzIyMjEyOFoXDTMwMDgyMzIyMjEyOFowPDEL\nMAkGA1UEBhMCVVMxDzANBgNVBAoTBkFtYXpvbjEcMBoGA1UEAxMTQW1hem9uIFJT\nQSAyMDQ4IE0wMTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAOtxLKnL\nH4gokjIwr4pXD3i3NyWVVYesZ1yX0yLI2qIUZ2t88Gfa4gMqs1YSXca1R/lnCKeT\nepWSGA+0+fkQNpp/L4C2T7oTTsddUx7g3ZYzByDTlrwS5HRQQqEFE3O1T5tEJP4t\nf+28IoXsNiEzl3UGzicYgtzj2cWCB41eJgEmJmcf2T8TzzK6a614ZPyq/w4CPAff\nnAV4coz96nW3AyiE2uhuB4zQUIXvgVSycW7sbWLvj5TDXunEpNCRwC4kkZjK7rol\njtT2cbb7W2s4Bkg3R42G3PLqBvt2N32e/0JOTViCk8/iccJ4sXqrS1uUN4iB5Nmv\nJK74csVl+0u0UecCAwEAAaOCAVowggFWMBIGA1UdEwEB/wQIMAYBAf8CAQAwDgYD\nVR0PAQH/BAQDAgGGMB0GA1UdJQQWMBQGCCsGAQUFBwMBBggrBgEFBQcDAjAdBgNV\nHQ4EFgQUgbgOY4qJEhjl+js7UJWf5uWQE4UwHwYDVR0jBBgwFoAUhBjMhTTsvAyU\nlC4IWZzHshBOCggwewYIKwYBBQUHAQEEbzBtMC8GCCsGAQUFBzABhiNodHRwOi8v\nb2NzcC5yb290Y2ExLmFtYXpvbnRydXN0LmNvbTA6BggrBgEFBQcwAoYuaHR0cDov\nL2NydC5yb290Y2ExLmFtYXpvbnRydXN0LmNvbS9yb290Y2ExLmNlcjA/BgNVHR8E\nODA2MDSgMqAwhi5odHRwOi8vY3JsLnJvb3RjYTEuYW1hem9udHJ1c3QuY29tL3Jv\nb3RjYTEuY3JsMBMGA1UdIAQMMAowCAYGZ4EMAQIBMA0GCSqGSIb3DQEBCwUAA4IB\nAQCtAN4CBSMuBjJitGuxlBbkEUDeK/pZwTXv4KqPK0G50fOHOQAd8j21p0cMBgbG\nkfMHVwLU7b0XwZCav0h1ogdPMN1KakK1DT0VwA/+hFvGPJnMV1Kx2G4S1ZaSk0uU\n5QfoiYIIano01J5k4T2HapKQmmOhS/iPtuo00wW+IMLeBuKMn3OLn005hcrOGTad\nhcmeyfhQP7Z+iKHvyoQGi1C0ClymHETx/chhQGDyYSWqB/THwnN15AwLQo0E5V9E\nSJlbe4mBlqeInUsNYugExNf+tOiybcrswBy8OFsd34XOW3rjSUtsuafd9AWySa3h\nxRRrwszrzX/WWGm6wyB+f7C4\n-----END CERTIFICATE-----\n",
+                "is_ca": true,
+                "issuer": "CN=Amazon Root CA 1,O=Amazon,C=US",
+                "max_path_length": 0,
+                "not_after": "2030-08-23T22:21:28Z",
+                "not_before": "2022-08-23T22:21:28Z",
+                "public_key_algorithm": "RSA",
+                "serial_number": "166129328851546858514271303855646110030630415",
+                "sha1_fingerprint": "2ad974a775f73cbdbbd8f5ac3a49255fa8fb1f8c",
+                "signature_algorithm": "SHA256-RSA",
+                "subject": "CN=Amazon RSA 2048 M01,O=Amazon,C=US",
+                "version": 3
+              },
+              {
+                "cert_pem": "-----BEGIN CERTIFICATE-----\nMIIIEDCCBvigAwIBAgIQAj9mq4505PIga7Z8bBWjtjANBgkqhkiG9w0BAQsFADA8\nMQswCQYDVQQGEwJVUzEPMA0GA1UEChMGQW1hem9uMRwwGgYDVQQDExNBbWF6b24g\nUlNBIDIwNDggTTAxMB4XDTI2MDcxNTAwMDAwMFoXDTI3MDEyODIzNTk1OVowKDEm\nMCQGA1UEAwwdKi5zMy5hcC1zb3V0aC0xLmFtYXpvbmF3cy5jb20wggEiMA0GCSqG\nSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDY+jqJkxdSjA7YrC3dOEmntRVWeBr3BAq6\nNWtEWjIUU+nIPqkvM1vBcVQaVvQvtz3t+Y7TT/EvLRgTCGilnbTmupz3kPpw9l8l\nedEC2qK2Jzf0KHPGxqTgXMfD0thKlCylpd8D6vCQpNmHCZr700k6BlWbZynlAHlp\nhUUadGUa2QfgySxYj1ZArvjGDovxM1GDphs6aXbAUVtQe96hQC8ENPtmmWKVVFpG\noTsxYt+kVUfQIDKREwHz9B0E2DdwzW7sb7G8fFdjNpQ5wAEs+t0nYByD3afQvlxB\nfaZ9z5NfP+MZ/K7kZLC5wNbLuVzlHweEyeANpvosPfWJ0Bwg35R9AgMBAAGjggUg\nMIIFHDAfBgNVHSMEGDAWgBSBuA5jiokSGOX6OztQlZ/m5ZAThTAdBgNVHQ4EFgQU\nGwH+W9KysC2o//Y5uK5AlxFHP0gwggJZBgNVHREEggJQMIICTIIdKi5zMy5hcC1z\nb3V0aC0xLmFtYXpvbmF3cy5jb22CJnMzLWRlcHJlY2F0ZWQuYXAtc291dGgtMS5h\nbWF6b25hd3MuY29tghIqLnMzLmFtYXpvbmF3cy5jb22CHSouczMtYXAtc291dGgt\nMS5hbWF6b25hd3MuY29tgikqLnMzLWFjY2Vzc3BvaW50LmFwLXNvdXRoLTEuYW1h\nem9uYXdzLmNvbYItczMtY29udHJvbC5kdWFsc3RhY2suYXAtc291dGgtMS5hbWF6\nb25hd3MuY29tghtzMy1hcC1zb3V0aC0xLmFtYXpvbmF3cy5jb22CEHMzLmFtYXpv\nbmF3cy5jb22CKCouczMtZGVwcmVjYXRlZC5hcC1zb3V0aC0xLmFtYXpvbmF3cy5j\nb22CLyouczMtY29udHJvbC5kdWFsc3RhY2suYXAtc291dGgtMS5hbWF6b25hd3Mu\nY29tgicqLnMzLmR1YWxzdGFjay5hcC1zb3V0aC0xLmFtYXpvbmF3cy5jb22CJSou\nczMtY29udHJvbC5hcC1zb3V0aC0xLmFtYXpvbmF3cy5jb22CJXMzLmR1YWxzdGFj\nay5hcC1zb3V0aC0xLmFtYXpvbmF3cy5jb22CG3MzLmFwLXNvdXRoLTEuYW1hem9u\nYXdzLmNvbYIjczMtY29udHJvbC5hcC1zb3V0aC0xLmFtYXpvbmF3cy5jb22CMyou\nczMtYWNjZXNzcG9pbnQuZHVhbHN0YWNrLmFwLXNvdXRoLTEuYW1hem9uYXdzLmNv\nbTATBgNVHSAEDDAKMAgGBmeBDAECATAOBgNVHQ8BAf8EBAMCBaAwEwYDVR0lBAww\nCgYIKwYBBQUHAwEwOwYDVR0fBDQwMjAwoC6gLIYqaHR0cDovL2NybC5yMm0wMS5h\nbWF6b250cnVzdC5jb20vcjJtMDEuY3JsMHUGCCsGAQUFBwEBBGkwZzAtBggrBgEF\nBQcwAYYhaHR0cDovL29jc3AucjJtMDEuYW1hem9udHJ1c3QuY29tMDYGCCsGAQUF\nBzAChipodHRwOi8vY3J0LnIybTAxLmFtYXpvbnRydXN0LmNvbS9yMm0wMS5jZXIw\nDAYDVR0TAQH/BAIwADCCAX8GCisGAQQB1nkCBAIEggFvBIIBawFpAHYATGPcmOWc\nHauI9h6KPd6uj6tEozd7X5uUw/uhnPzBviYAAAGfZUBMmgAABAMARzBFAiAMluSK\nx/XQ22TAXTfUUcVy54DUsDlsxOfWRerdEPABkAIhAPAb1XiL10NXEydYCWwLzUj6\nm46LWWknvMeZuuXdExBWAHcA1tWNqdAXU/NqSqDHV0kCr+vH3CzTjNn3ZMgMiRke\nnwIAAAGfZUBNSQAABAMASDBGAiEAgkyMtBAW5eYRSRZxtLlaaWJbyfoMKH2Sv4dp\nP0uPjeUCIQDEnN3H11SRLb5MDzMU0EZJ60J5+H1MnWuUvSKL7Ll53QB2AByfaCzp\n+vBFaVD4G5aKh93bMhDYTObIsuOCUkrEz1mfAAABn2VATXQAAAQDAEcwRQIhAPm2\n1u8ndPNooYnlWUaG2M5B2c/wW/Qwz0wzih9stlDmAiB0YiqxdaiNqHQH9/OkSSuX\npUP1tAx3aNsWrvK3RbjMhDANBgkqhkiG9w0BAQsFAAOCAQEArBMgCg9sEzDZmSKG\nCdHPglf+u67Du2SH5ostlE74xzG+AgiFe3zV+1S82FEI1AoAm7nCQnIRJM1k346y\n9q4PUllsRhaWAxqMpPyKoPWV+ygy4GU6Qvg9yCHoFBENnwIeaObCAUJiYaUvBJCZ\n08sD+0j96UgKbbrnaiYSnhAKBxF8xOOgVMO0qbuSe5Dm7IvcR5gI5fq2w/3bncrh\nRxbXorgvgyF+cOq8AEe4W88UpN7xXjnnTP6OmisQ0Kl6gQ7nOvQShCg52JUYfFkL\nve4yTv8vNXnagN28JowiBoEir/BLSxR9olMzT6Xo1r263snBV4ktBiFUGRJcMP3H\n91falQ==\n-----END CERTIFICATE-----\n",
+                "is_ca": false,
+                "issuer": "CN=Amazon RSA 2048 M01,O=Amazon,C=US",
+                "max_path_length": -1,
+                "not_after": "2027-01-28T23:59:59Z",
+                "not_before": "2026-07-15T00:00:00Z",
+                "public_key_algorithm": "RSA",
+                "serial_number": "2987653091541076251702624842180567990",
+                "sha1_fingerprint": "53c413b8d5f55af89ad9812aed6f905cf0ca1410",
+                "signature_algorithm": "SHA256-RSA",
+                "subject": "CN=*.s3.ap-south-1.amazonaws.com",
+                "version": 3
+              }
+            ],
+            "content": null,
+            "id": "d15ce61a18bd8ba9f58529d9962c567fc2960dd6",
+            "url": "https://s3.ap-south-1.amazonaws.com",
+            "verify_chain": true
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_eip",
+      "name": "master",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "address": null,
+            "allocation_id": "eipalloc-0332d95bacff7b2f3",
+            "arn": "arn:aws:ec2:ap-south-1:449902674551:elastic-ip/eipalloc-0332d95bacff7b2f3",
+            "associate_with_private_ip": null,
+            "association_id": "eipassoc-0fcc18233c1a28227",
+            "carrier_ip": "",
+            "customer_owned_ip": "",
+            "customer_owned_ipv4_pool": "",
+            "domain": "vpc",
+            "id": "eipalloc-0332d95bacff7b2f3",
+            "instance": "i-077655547e1bdf910",
+            "ipam_pool_id": "",
+            "network_border_group": "ap-south-1",
+            "network_interface": "eni-04ca626083d85ad81",
+            "private_dns": "ip-10-20-1-84.ap-south-1.compute.internal",
+            "private_ip": "10.20.1.84",
+            "ptr_record": "",
+            "public_dns": "ec2-13-207-50-82.ap-south-1.compute.amazonaws.com",
+            "public_ip": "13.207.50.82",
+            "public_ipv4_pool": "amazon",
+            "region": "ap-south-1",
+            "tags": {
+              "Name": "zero-trust-platform-master-eip"
+            },
+            "tags_all": {
+              "Name": "zero-trust-platform-master-eip"
+            },
+            "timeouts": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiZGVsZXRlIjoxODAwMDAwMDAwMDAsInJlYWQiOjkwMDAwMDAwMDAwMCwidXBkYXRlIjozMDAwMDAwMDAwMDB9fQ==",
+          "dependencies": [
+            "aws_iam_instance_profile.ec2_node_profile",
+            "aws_iam_role.ec2_node_role",
+            "aws_instance.k8s_master",
+            "aws_key_pair.generated",
+            "aws_security_group.k8s_master",
+            "aws_subnet.public",
+            "aws_vpc.main",
+            "data.aws_ami.ubuntu"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_iam_instance_profile",
+      "name": "ec2_node_profile",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "arn": "arn:aws:iam::449902674551:instance-profile/zero-trust-platform-ec2-node-profile",
+            "create_date": "2026-08-01T04:37:04Z",
+            "id": "zero-trust-platform-ec2-node-profile",
+            "name": "zero-trust-platform-ec2-node-profile",
+            "name_prefix": "",
+            "path": "/",
+            "role": "zero-trust-platform-ec2-node-role",
+            "tags": {},
+            "tags_all": {},
+            "unique_id": "AIPAWRQCKAJ3QPGYH6F5I"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "bnVsbA==",
+          "dependencies": [
+            "aws_iam_role.ec2_node_role"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_iam_openid_connect_provider",
+      "name": "self_hosted",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "arn": "arn:aws:iam::449902674551:oidc-provider/zero-trust-platform-oidc-449902674551.s3.ap-south-1.amazonaws.com",
+            "client_id_list": [
+              "sts.amazonaws.com"
+            ],
+            "id": "arn:aws:iam::449902674551:oidc-provider/zero-trust-platform-oidc-449902674551.s3.ap-south-1.amazonaws.com",
+            "tags": {
+              "Name": "zero-trust-platform-self-hosted-oidc"
+            },
+            "tags_all": {
+              "Name": "zero-trust-platform-self-hosted-oidc"
+            },
+            "thumbprint_list": [
+              "06b25927c42a721631c1efd9431e648fa62e1e39"
+            ],
+            "url": "zero-trust-platform-oidc-449902674551.s3.ap-south-1.amazonaws.com"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJzY2hlbWFfdmVyc2lvbiI6IjAifQ==",
+          "dependencies": [
+            "aws_s3_bucket.oidc_provider",
+            "data.aws_caller_identity.current",
+            "data.tls_certificate.oidc_s3_cert"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_iam_role",
+      "name": "ec2_node_role",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "arn": "arn:aws:iam::449902674551:role/zero-trust-platform-ec2-node-role",
+            "assume_role_policy": "{\"Statement\":[{\"Action\":\"sts:AssumeRole\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"ec2.amazonaws.com\"}}],\"Version\":\"2012-10-17\"}",
+            "create_date": "2026-08-01T04:37:03Z",
+            "description": "",
+            "force_detach_policies": false,
+            "id": "zero-trust-platform-ec2-node-role",
+            "inline_policy": [],
+            "managed_policy_arns": [
+              "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly",
+              "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore",
+              "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy",
+              "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
+            ],
+            "max_session_duration": 3600,
+            "name": "zero-trust-platform-ec2-node-role",
+            "name_prefix": "",
+            "path": "/",
+            "permissions_boundary": "",
+            "tags": {
+              "Name": "zero-trust-platform-ec2-node-role"
+            },
+            "tags_all": {
+              "Name": "zero-trust-platform-ec2-node-role"
+            },
+            "unique_id": "AROAWRQCKAJ34BK2Q6JSA"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "bnVsbA=="
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_iam_role",
+      "name": "jenkins_pod_role",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "arn": "arn:aws:iam::449902674551:role/zero-trust-platform-jenkins-pod-role",
+            "assume_role_policy": "{\"Statement\":[{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"zero-trust-platform-oidc-449902674551.s3.ap-south-1.amazonaws.com:aud\":\"sts.amazonaws.com\",\"zero-trust-platform-oidc-449902674551.s3.ap-south-1.amazonaws.com:sub\":\"system:serviceaccount:jenkins:jenkins-agent\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::449902674551:oidc-provider/zero-trust-platform-oidc-449902674551.s3.ap-south-1.amazonaws.com\"}}],\"Version\":\"2012-10-17\"}",
+            "create_date": "2026-07-31T16:25:03Z",
+            "description": "",
+            "force_detach_policies": false,
+            "id": "zero-trust-platform-jenkins-pod-role",
+            "inline_policy": [],
+            "managed_policy_arns": [
+              "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPowerUser"
+            ],
+            "max_session_duration": 3600,
+            "name": "zero-trust-platform-jenkins-pod-role",
+            "name_prefix": "",
+            "path": "/",
+            "permissions_boundary": "",
+            "tags": {
+              "Name": "zero-trust-platform-jenkins-pod-role"
+            },
+            "tags_all": {
+              "Name": "zero-trust-platform-jenkins-pod-role"
+            },
+            "unique_id": "AROAWRQCKAJ3QZ6G7YRKG"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJzY2hlbWFfdmVyc2lvbiI6IjAifQ==",
+          "dependencies": [
+            "aws_iam_openid_connect_provider.self_hosted",
+            "aws_s3_bucket.oidc_provider",
+            "data.aws_caller_identity.current",
+            "data.tls_certificate.oidc_s3_cert"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_iam_role_policy_attachment",
+      "name": "cloudwatch_agent",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "id": "zero-trust-platform-ec2-node-role/arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy",
+            "policy_arn": "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy",
+            "role": "zero-trust-platform-ec2-node-role"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "bnVsbA==",
+          "dependencies": [
+            "aws_iam_role.ec2_node_role"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_iam_role_policy_attachment",
+      "name": "ebs_csi_driver",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "id": "zero-trust-platform-ec2-node-role/arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy",
+            "policy_arn": "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy",
+            "role": "zero-trust-platform-ec2-node-role"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "bnVsbA==",
+          "dependencies": [
+            "aws_iam_role.ec2_node_role"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_iam_role_policy_attachment",
+      "name": "ecr_read_only",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "id": "zero-trust-platform-ec2-node-role/arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly",
+            "policy_arn": "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly",
+            "role": "zero-trust-platform-ec2-node-role"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "bnVsbA==",
+          "dependencies": [
+            "aws_iam_role.ec2_node_role"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_iam_role_policy_attachment",
+      "name": "jenkins_ecr_push",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "id": "zero-trust-platform-jenkins-pod-role/arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPowerUser",
+            "policy_arn": "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPowerUser",
+            "role": "zero-trust-platform-jenkins-pod-role"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "bnVsbA==",
+          "dependencies": [
+            "aws_iam_openid_connect_provider.self_hosted",
+            "aws_iam_role.jenkins_pod_role",
+            "aws_s3_bucket.oidc_provider",
+            "data.aws_caller_identity.current",
+            "data.tls_certificate.oidc_s3_cert"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_iam_role_policy_attachment",
+      "name": "ssm_managed",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "id": "zero-trust-platform-ec2-node-role/arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore",
+            "policy_arn": "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore",
+            "role": "zero-trust-platform-ec2-node-role"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "bnVsbA==",
+          "dependencies": [
+            "aws_iam_role.ec2_node_role"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_iam_user_policy",
+      "name": "github_actions_scoped",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "id": "github-actions-ecr-push:zero-trust-platform-github-actions-scoped",
+            "name": "zero-trust-platform-github-actions-scoped",
+            "name_prefix": "",
+            "policy": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Action\":[\"ecr:GetAuthorizationToken\",\"ecr:BatchCheckLayerAvailability\",\"ecr:GetDownloadUrlForLayer\",\"ecr:BatchGetImage\",\"ecr:PutImage\",\"ecr:InitiateLayerUpload\",\"ecr:UploadLayerPart\",\"ecr:CompleteLayerUpload\"],\"Effect\":\"Allow\",\"Resource\":\"*\",\"Sid\":\"ECRPush\"},{\"Action\":[\"ec2:RunInstances\",\"ec2:TerminateInstances\",\"ec2:StartInstances\",\"ec2:StopInstances\",\"ec2:Describe*\",\"ec2:CreateTags\"],\"Effect\":\"Allow\",\"Resource\":\"*\",\"Sid\":\"EC2Lifecycle\"},{\"Action\":[\"s3:GetObject\",\"s3:PutObject\",\"s3:ListBucket\"],\"Effect\":\"Allow\",\"Resource\":[\"arn:aws:s3:::zero-trust-platform-tf-state-449902674551\",\"arn:aws:s3:::zero-trust-platform-tf-state-449902674551/*\"],\"Sid\":\"TerraformStateAccess\"},{\"Action\":[\"dynamodb:GetItem\",\"dynamodb:PutItem\",\"dynamodb:DeleteItem\"],\"Effect\":\"Allow\",\"Resource\":\"arn:aws:dynamodb:ap-south-1:449902674551:table/zero-trust-platform-tf-lock\",\"Sid\":\"TerraformLockTable\"}]}",
+            "user": "github-actions-ecr-push"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "bnVsbA==",
+          "dependencies": [
+            "data.aws_caller_identity.current"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_instance",
+      "name": "k8s_master",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 2,
+          "attributes": {
+            "ami": "ami-0aa761682283b4cc8",
+            "arn": "arn:aws:ec2:ap-south-1:449902674551:instance/i-077655547e1bdf910",
+            "associate_public_ip_address": true,
+            "availability_zone": "ap-south-1a",
+            "capacity_reservation_specification": [
+              {
+                "capacity_reservation_preference": "open",
+                "capacity_reservation_target": []
+              }
+            ],
+            "cpu_options": [
+              {
+                "amd_sev_snp": "",
+                "core_count": 1,
+                "nested_virtualization": "",
+                "threads_per_core": 2
+              }
+            ],
+            "credit_specification": [],
+            "disable_api_stop": false,
+            "disable_api_termination": false,
+            "ebs_block_device": [],
+            "ebs_optimized": false,
+            "enable_primary_ipv6": null,
+            "enclave_options": [
+              {
+                "enabled": false
+              }
+            ],
+            "ephemeral_block_device": [],
+            "force_destroy": false,
+            "get_password_data": false,
+            "hibernation": false,
+            "host_id": "",
+            "host_resource_group_arn": null,
+            "iam_instance_profile": "zero-trust-platform-ec2-node-profile",
+            "id": "i-077655547e1bdf910",
+            "instance_initiated_shutdown_behavior": "stop",
+            "instance_lifecycle": "",
+            "instance_market_options": [],
+            "instance_state": "running",
+            "instance_type": "m7i-flex.large",
+            "ipv6_address_count": 0,
+            "ipv6_addresses": [],
+            "key_name": "zero-trust-key",
+            "launch_template": [],
+            "maintenance_options": [
+              {
+                "auto_recovery": "default"
+              }
+            ],
+            "metadata_options": [
+              {
+                "http_endpoint": "enabled",
+                "http_protocol_ipv6": "disabled",
+                "http_put_response_hop_limit": 1,
+                "http_tokens": "optional",
+                "instance_metadata_tags": "disabled"
+              }
+            ],
+            "monitoring": false,
+            "network_interface": [],
+            "outpost_arn": "",
+            "password_data": "",
+            "placement_group": "",
+            "placement_group_id": "",
+            "placement_partition_number": 0,
+            "primary_network_interface": [
+              {
+                "delete_on_termination": true,
+                "network_interface_id": "eni-04ca626083d85ad81"
+              }
+            ],
+            "primary_network_interface_id": "eni-04ca626083d85ad81",
+            "private_dns": "ip-10-20-1-84.ap-south-1.compute.internal",
+            "private_dns_name_options": [
+              {
+                "enable_resource_name_dns_a_record": false,
+                "enable_resource_name_dns_aaaa_record": false,
+                "hostname_type": "ip-name"
+              }
+            ],
+            "private_ip": "10.20.1.84",
+            "public_dns": "ec2-13-207-50-82.ap-south-1.compute.amazonaws.com",
+            "public_ip": "13.207.50.82",
+            "region": "ap-south-1",
+            "root_block_device": [
+              {
+                "delete_on_termination": true,
+                "device_name": "/dev/sda1",
+                "encrypted": false,
+                "iops": 3000,
+                "kms_key_id": "",
+                "tags": {},
+                "tags_all": {},
+                "throughput": 125,
+                "volume_id": "vol-0b8a363b67101e757",
+                "volume_size": 20,
+                "volume_type": "gp3"
+              }
+            ],
+            "secondary_network_interface": [],
+            "secondary_private_ips": [],
+            "security_groups": [],
+            "source_dest_check": true,
+            "spot_instance_request_id": "",
+            "subnet_id": "subnet-0437419994752dd78",
+            "tags": {
+              "Name": "zero-trust-platform-master",
+              "Role": "control-plane"
+            },
+            "tags_all": {
+              "Name": "zero-trust-platform-master",
+              "Role": "control-plane"
+            },
+            "tenancy": "default",
+            "timeouts": null,
+            "user_data": "#!/bin/bash\r\nset -euxo pipefail\r\n\r\n# Disable swap (required by kubelet)\r\nswapoff -a\r\nsed -i '/ swap / s/^/#/' /etc/fstab\r\n\r\n# Kernel modules + sysctl for K8s networking\r\ncat \u003c\u003cMODULES | tee /etc/modules-load.d/k8s.conf\r\noverlay\r\nbr_netfilter\r\nMODULES\r\nmodprobe overlay\r\nmodprobe br_netfilter\r\n\r\ncat \u003c\u003cSYSCTL | tee /etc/sysctl.d/k8s.conf\r\nnet.bridge.bridge-nf-call-iptables  = 1\r\nnet.bridge.bridge-nf-call-ip6tables = 1\r\nnet.ipv4.ip_forward                 = 1\r\nSYSCTL\r\nsysctl --system\r\n\r\n# Install containerd\r\napt-get update\r\napt-get install -y ca-certificates curl gnupg apt-transport-https\r\n\r\ninstall -m 0755 -d /etc/apt/keyrings\r\ncurl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg\r\nchmod a+r /etc/apt/keyrings/docker.gpg\r\necho \"deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release \u0026\u0026 echo \"$VERSION_CODENAME\") stable\" | tee /etc/apt/sources.list.d/docker.list \u003e /dev/null\r\napt-get update\r\napt-get install -y containerd.io\r\n\r\nmkdir -p /etc/containerd\r\ncontainerd config default | tee /etc/containerd/config.toml\r\nsed -i 's/SystemdCgroup = false/SystemdCgroup = true/' /etc/containerd/config.toml\r\nsystemctl restart containerd\r\nsystemctl enable containerd\r\n\r\n# Install kubeadm, kubelet, kubectl\r\ncurl -fsSL https://pkgs.k8s.io/core:/stable:/v1.30/deb/Release.key | gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg\r\necho 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.30/deb/ /' | tee /etc/apt/sources.list.d/kubernetes.list\r\n\r\napt-get update\r\napt-get install -y kubelet kubeadm kubectl\r\napt-mark hold kubelet kubeadm kubectl\r\n\r\necho \"Bootstrap complete. Node ready for 'kubeadm init' or 'kubeadm join'.\" \u003e /var/log/bootstrap-done.log\r\n",
+            "user_data_base64": null,
+            "user_data_replace_on_change": false,
+            "volume_tags": null,
+            "vpc_security_group_ids": [
+              "sg-082aa88f936937fa4"
+            ]
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjo2MDAwMDAwMDAwMDAsImRlbGV0ZSI6MTIwMDAwMDAwMDAwMCwicmVhZCI6OTAwMDAwMDAwMDAwLCJ1cGRhdGUiOjYwMDAwMDAwMDAwMH0sInNjaGVtYV92ZXJzaW9uIjoiMiJ9",
+          "dependencies": [
+            "aws_iam_instance_profile.ec2_node_profile",
+            "aws_iam_role.ec2_node_role",
+            "aws_key_pair.generated",
+            "aws_security_group.k8s_master",
+            "aws_subnet.public",
+            "aws_vpc.main",
+            "data.aws_ami.ubuntu"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_instance",
+      "name": "k8s_worker",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "index_key": 0,
+          "schema_version": 2,
+          "attributes": {
+            "ami": "ami-0aa761682283b4cc8",
+            "arn": "arn:aws:ec2:ap-south-1:449902674551:instance/i-056b0e01240464d70",
+            "associate_public_ip_address": true,
+            "availability_zone": "ap-south-1a",
+            "capacity_reservation_specification": [
+              {
+                "capacity_reservation_preference": "open",
+                "capacity_reservation_target": []
+              }
+            ],
+            "cpu_options": [
+              {
+                "amd_sev_snp": "",
+                "core_count": 1,
+                "nested_virtualization": "",
+                "threads_per_core": 2
+              }
+            ],
+            "credit_specification": [],
+            "disable_api_stop": false,
+            "disable_api_termination": false,
+            "ebs_block_device": [],
+            "ebs_optimized": false,
+            "enable_primary_ipv6": null,
+            "enclave_options": [
+              {
+                "enabled": false
+              }
+            ],
+            "ephemeral_block_device": [],
+            "force_destroy": false,
+            "get_password_data": false,
+            "hibernation": false,
+            "host_id": "",
+            "host_resource_group_arn": null,
+            "iam_instance_profile": "zero-trust-platform-ec2-node-profile",
+            "id": "i-056b0e01240464d70",
+            "instance_initiated_shutdown_behavior": "stop",
+            "instance_lifecycle": "",
+            "instance_market_options": [],
+            "instance_state": "running",
+            "instance_type": "m7i-flex.large",
+            "ipv6_address_count": 0,
+            "ipv6_addresses": [],
+            "key_name": "zero-trust-key",
+            "launch_template": [],
+            "maintenance_options": [
+              {
+                "auto_recovery": "default"
+              }
+            ],
+            "metadata_options": [
+              {
+                "http_endpoint": "enabled",
+                "http_protocol_ipv6": "disabled",
+                "http_put_response_hop_limit": 1,
+                "http_tokens": "optional",
+                "instance_metadata_tags": "disabled"
+              }
+            ],
+            "monitoring": false,
+            "network_interface": [],
+            "outpost_arn": "",
+            "password_data": "",
+            "placement_group": "",
+            "placement_group_id": "",
+            "placement_partition_number": 0,
+            "primary_network_interface": [
+              {
+                "delete_on_termination": true,
+                "network_interface_id": "eni-0655210e141034f2f"
+              }
+            ],
+            "primary_network_interface_id": "eni-0655210e141034f2f",
+            "private_dns": "ip-10-20-1-192.ap-south-1.compute.internal",
+            "private_dns_name_options": [
+              {
+                "enable_resource_name_dns_a_record": false,
+                "enable_resource_name_dns_aaaa_record": false,
+                "hostname_type": "ip-name"
+              }
+            ],
+            "private_ip": "10.20.1.192",
+            "public_dns": "ec2-13-233-112-68.ap-south-1.compute.amazonaws.com",
+            "public_ip": "13.233.112.68",
+            "region": "ap-south-1",
+            "root_block_device": [
+              {
+                "delete_on_termination": true,
+                "device_name": "/dev/sda1",
+                "encrypted": false,
+                "iops": 3000,
+                "kms_key_id": "",
+                "tags": {},
+                "tags_all": {},
+                "throughput": 125,
+                "volume_id": "vol-0fc8c7436b4cc3368",
+                "volume_size": 20,
+                "volume_type": "gp3"
+              }
+            ],
+            "secondary_network_interface": [],
+            "secondary_private_ips": [],
+            "security_groups": [],
+            "source_dest_check": true,
+            "spot_instance_request_id": "",
+            "subnet_id": "subnet-0437419994752dd78",
+            "tags": {
+              "Name": "zero-trust-platform-worker-1",
+              "Role": "worker"
+            },
+            "tags_all": {
+              "Name": "zero-trust-platform-worker-1",
+              "Role": "worker"
+            },
+            "tenancy": "default",
+            "timeouts": null,
+            "user_data": "#!/bin/bash\r\nset -euxo pipefail\r\n\r\n# Disable swap (required by kubelet)\r\nswapoff -a\r\nsed -i '/ swap / s/^/#/' /etc/fstab\r\n\r\n# Kernel modules + sysctl for K8s networking\r\ncat \u003c\u003cMODULES | tee /etc/modules-load.d/k8s.conf\r\noverlay\r\nbr_netfilter\r\nMODULES\r\nmodprobe overlay\r\nmodprobe br_netfilter\r\n\r\ncat \u003c\u003cSYSCTL | tee /etc/sysctl.d/k8s.conf\r\nnet.bridge.bridge-nf-call-iptables  = 1\r\nnet.bridge.bridge-nf-call-ip6tables = 1\r\nnet.ipv4.ip_forward                 = 1\r\nSYSCTL\r\nsysctl --system\r\n\r\n# Install containerd\r\napt-get update\r\napt-get install -y ca-certificates curl gnupg apt-transport-https\r\n\r\ninstall -m 0755 -d /etc/apt/keyrings\r\ncurl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg\r\nchmod a+r /etc/apt/keyrings/docker.gpg\r\necho \"deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release \u0026\u0026 echo \"$VERSION_CODENAME\") stable\" | tee /etc/apt/sources.list.d/docker.list \u003e /dev/null\r\napt-get update\r\napt-get install -y containerd.io\r\n\r\nmkdir -p /etc/containerd\r\ncontainerd config default | tee /etc/containerd/config.toml\r\nsed -i 's/SystemdCgroup = false/SystemdCgroup = true/' /etc/containerd/config.toml\r\nsystemctl restart containerd\r\nsystemctl enable containerd\r\n\r\n# Install kubeadm, kubelet, kubectl\r\ncurl -fsSL https://pkgs.k8s.io/core:/stable:/v1.30/deb/Release.key | gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg\r\necho 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.30/deb/ /' | tee /etc/apt/sources.list.d/kubernetes.list\r\n\r\napt-get update\r\napt-get install -y kubelet kubeadm kubectl\r\napt-mark hold kubelet kubeadm kubectl\r\n\r\necho \"Bootstrap complete. Node ready for 'kubeadm init' or 'kubeadm join'.\" \u003e /var/log/bootstrap-done.log\r\n",
+            "user_data_base64": null,
+            "user_data_replace_on_change": false,
+            "volume_tags": null,
+            "vpc_security_group_ids": [
+              "sg-0eeb3980d6c78508c"
+            ]
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjo2MDAwMDAwMDAwMDAsImRlbGV0ZSI6MTIwMDAwMDAwMDAwMCwicmVhZCI6OTAwMDAwMDAwMDAwLCJ1cGRhdGUiOjYwMDAwMDAwMDAwMH0sInNjaGVtYV92ZXJzaW9uIjoiMiJ9",
+          "dependencies": [
+            "aws_iam_instance_profile.ec2_node_profile",
+            "aws_iam_role.ec2_node_role",
+            "aws_key_pair.generated",
+            "aws_security_group.k8s_worker",
+            "aws_subnet.public",
+            "aws_vpc.main",
+            "data.aws_ami.ubuntu"
+          ]
+        },
+        {
+          "index_key": 1,
+          "schema_version": 2,
+          "attributes": {
+            "ami": "ami-0aa761682283b4cc8",
+            "arn": "arn:aws:ec2:ap-south-1:449902674551:instance/i-0c556b7c5da68acc6",
+            "associate_public_ip_address": true,
+            "availability_zone": "ap-south-1a",
+            "capacity_reservation_specification": [
+              {
+                "capacity_reservation_preference": "open",
+                "capacity_reservation_target": []
+              }
+            ],
+            "cpu_options": [
+              {
+                "amd_sev_snp": "",
+                "core_count": 1,
+                "nested_virtualization": "",
+                "threads_per_core": 2
+              }
+            ],
+            "credit_specification": [],
+            "disable_api_stop": false,
+            "disable_api_termination": false,
+            "ebs_block_device": [],
+            "ebs_optimized": false,
+            "enable_primary_ipv6": null,
+            "enclave_options": [
+              {
+                "enabled": false
+              }
+            ],
+            "ephemeral_block_device": [],
+            "force_destroy": false,
+            "get_password_data": false,
+            "hibernation": false,
+            "host_id": "",
+            "host_resource_group_arn": null,
+            "iam_instance_profile": "zero-trust-platform-ec2-node-profile",
+            "id": "i-0c556b7c5da68acc6",
+            "instance_initiated_shutdown_behavior": "stop",
+            "instance_lifecycle": "",
+            "instance_market_options": [],
+            "instance_state": "running",
+            "instance_type": "m7i-flex.large",
+            "ipv6_address_count": 0,
+            "ipv6_addresses": [],
+            "key_name": "zero-trust-key",
+            "launch_template": [],
+            "maintenance_options": [
+              {
+                "auto_recovery": "default"
+              }
+            ],
+            "metadata_options": [
+              {
+                "http_endpoint": "enabled",
+                "http_protocol_ipv6": "disabled",
+                "http_put_response_hop_limit": 1,
+                "http_tokens": "optional",
+                "instance_metadata_tags": "disabled"
+              }
+            ],
+            "monitoring": false,
+            "network_interface": [],
+            "outpost_arn": "",
+            "password_data": "",
+            "placement_group": "",
+            "placement_group_id": "",
+            "placement_partition_number": 0,
+            "primary_network_interface": [
+              {
+                "delete_on_termination": true,
+                "network_interface_id": "eni-0a3e8419251b16306"
+              }
+            ],
+            "primary_network_interface_id": "eni-0a3e8419251b16306",
+            "private_dns": "ip-10-20-1-163.ap-south-1.compute.internal",
+            "private_dns_name_options": [
+              {
+                "enable_resource_name_dns_a_record": false,
+                "enable_resource_name_dns_aaaa_record": false,
+                "hostname_type": "ip-name"
+              }
+            ],
+            "private_ip": "10.20.1.163",
+            "public_dns": "ec2-65-0-89-57.ap-south-1.compute.amazonaws.com",
+            "public_ip": "65.0.89.57",
+            "region": "ap-south-1",
+            "root_block_device": [
+              {
+                "delete_on_termination": true,
+                "device_name": "/dev/sda1",
+                "encrypted": false,
+                "iops": 3000,
+                "kms_key_id": "",
+                "tags": {},
+                "tags_all": {},
+                "throughput": 125,
+                "volume_id": "vol-008b5b6152394e564",
+                "volume_size": 20,
+                "volume_type": "gp3"
+              }
+            ],
+            "secondary_network_interface": [],
+            "secondary_private_ips": [],
+            "security_groups": [],
+            "source_dest_check": true,
+            "spot_instance_request_id": "",
+            "subnet_id": "subnet-0437419994752dd78",
+            "tags": {
+              "Name": "zero-trust-platform-worker-2",
+              "Role": "worker"
+            },
+            "tags_all": {
+              "Name": "zero-trust-platform-worker-2",
+              "Role": "worker"
+            },
+            "tenancy": "default",
+            "timeouts": null,
+            "user_data": "#!/bin/bash\r\nset -euxo pipefail\r\n\r\n# Disable swap (required by kubelet)\r\nswapoff -a\r\nsed -i '/ swap / s/^/#/' /etc/fstab\r\n\r\n# Kernel modules + sysctl for K8s networking\r\ncat \u003c\u003cMODULES | tee /etc/modules-load.d/k8s.conf\r\noverlay\r\nbr_netfilter\r\nMODULES\r\nmodprobe overlay\r\nmodprobe br_netfilter\r\n\r\ncat \u003c\u003cSYSCTL | tee /etc/sysctl.d/k8s.conf\r\nnet.bridge.bridge-nf-call-iptables  = 1\r\nnet.bridge.bridge-nf-call-ip6tables = 1\r\nnet.ipv4.ip_forward                 = 1\r\nSYSCTL\r\nsysctl --system\r\n\r\n# Install containerd\r\napt-get update\r\napt-get install -y ca-certificates curl gnupg apt-transport-https\r\n\r\ninstall -m 0755 -d /etc/apt/keyrings\r\ncurl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg\r\nchmod a+r /etc/apt/keyrings/docker.gpg\r\necho \"deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release \u0026\u0026 echo \"$VERSION_CODENAME\") stable\" | tee /etc/apt/sources.list.d/docker.list \u003e /dev/null\r\napt-get update\r\napt-get install -y containerd.io\r\n\r\nmkdir -p /etc/containerd\r\ncontainerd config default | tee /etc/containerd/config.toml\r\nsed -i 's/SystemdCgroup = false/SystemdCgroup = true/' /etc/containerd/config.toml\r\nsystemctl restart containerd\r\nsystemctl enable containerd\r\n\r\n# Install kubeadm, kubelet, kubectl\r\ncurl -fsSL https://pkgs.k8s.io/core:/stable:/v1.30/deb/Release.key | gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg\r\necho 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.30/deb/ /' | tee /etc/apt/sources.list.d/kubernetes.list\r\n\r\napt-get update\r\napt-get install -y kubelet kubeadm kubectl\r\napt-mark hold kubelet kubeadm kubectl\r\n\r\necho \"Bootstrap complete. Node ready for 'kubeadm init' or 'kubeadm join'.\" \u003e /var/log/bootstrap-done.log\r\n",
+            "user_data_base64": null,
+            "user_data_replace_on_change": false,
+            "volume_tags": null,
+            "vpc_security_group_ids": [
+              "sg-0eeb3980d6c78508c"
+            ]
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjo2MDAwMDAwMDAwMDAsImRlbGV0ZSI6MTIwMDAwMDAwMDAwMCwicmVhZCI6OTAwMDAwMDAwMDAwLCJ1cGRhdGUiOjYwMDAwMDAwMDAwMH0sInNjaGVtYV92ZXJzaW9uIjoiMiJ9",
+          "dependencies": [
+            "aws_iam_instance_profile.ec2_node_profile",
+            "aws_iam_role.ec2_node_role",
+            "aws_key_pair.generated",
+            "aws_security_group.k8s_worker",
+            "aws_subnet.public",
+            "aws_vpc.main",
+            "data.aws_ami.ubuntu"
+          ]
+        },
+        {
+          "index_key": 2,
+          "schema_version": 2,
+          "attributes": {
+            "ami": "ami-0aa761682283b4cc8",
+            "arn": "arn:aws:ec2:ap-south-1:449902674551:instance/i-0c6932a763d0dbe96",
+            "associate_public_ip_address": true,
+            "availability_zone": "ap-south-1a",
+            "capacity_reservation_specification": [
+              {
+                "capacity_reservation_preference": "open",
+                "capacity_reservation_target": []
+              }
+            ],
+            "cpu_options": [
+              {
+                "amd_sev_snp": "",
+                "core_count": 1,
+                "nested_virtualization": "",
+                "threads_per_core": 2
+              }
+            ],
+            "credit_specification": [],
+            "disable_api_stop": false,
+            "disable_api_termination": false,
+            "ebs_block_device": [],
+            "ebs_optimized": false,
+            "enable_primary_ipv6": null,
+            "enclave_options": [
+              {
+                "enabled": false
+              }
+            ],
+            "ephemeral_block_device": [],
+            "force_destroy": false,
+            "get_password_data": false,
+            "hibernation": false,
+            "host_id": "",
+            "host_resource_group_arn": null,
+            "iam_instance_profile": "zero-trust-platform-ec2-node-profile",
+            "id": "i-0c6932a763d0dbe96",
+            "instance_initiated_shutdown_behavior": "stop",
+            "instance_lifecycle": "",
+            "instance_market_options": [],
+            "instance_state": "running",
+            "instance_type": "m7i-flex.large",
+            "ipv6_address_count": 0,
+            "ipv6_addresses": [],
+            "key_name": "zero-trust-key",
+            "launch_template": [],
+            "maintenance_options": [
+              {
+                "auto_recovery": "default"
+              }
+            ],
+            "metadata_options": [
+              {
+                "http_endpoint": "enabled",
+                "http_protocol_ipv6": "disabled",
+                "http_put_response_hop_limit": 1,
+                "http_tokens": "optional",
+                "instance_metadata_tags": "disabled"
+              }
+            ],
+            "monitoring": false,
+            "network_interface": [],
+            "outpost_arn": "",
+            "password_data": "",
+            "placement_group": "",
+            "placement_group_id": "",
+            "placement_partition_number": 0,
+            "primary_network_interface": [
+              {
+                "delete_on_termination": true,
+                "network_interface_id": "eni-0e2e5c736d731e4ff"
+              }
+            ],
+            "primary_network_interface_id": "eni-0e2e5c736d731e4ff",
+            "private_dns": "ip-10-20-1-34.ap-south-1.compute.internal",
+            "private_dns_name_options": [
+              {
+                "enable_resource_name_dns_a_record": false,
+                "enable_resource_name_dns_aaaa_record": false,
+                "hostname_type": "ip-name"
+              }
+            ],
+            "private_ip": "10.20.1.34",
+            "public_dns": "ec2-65-0-91-98.ap-south-1.compute.amazonaws.com",
+            "public_ip": "65.0.91.98",
+            "region": "ap-south-1",
+            "root_block_device": [
+              {
+                "delete_on_termination": true,
+                "device_name": "/dev/sda1",
+                "encrypted": false,
+                "iops": 3000,
+                "kms_key_id": "",
+                "tags": {},
+                "tags_all": {},
+                "throughput": 125,
+                "volume_id": "vol-082f8532a14b63ccd",
+                "volume_size": 20,
+                "volume_type": "gp3"
+              }
+            ],
+            "secondary_network_interface": [],
+            "secondary_private_ips": [],
+            "security_groups": [],
+            "source_dest_check": true,
+            "spot_instance_request_id": "",
+            "subnet_id": "subnet-0437419994752dd78",
+            "tags": {
+              "Name": "zero-trust-platform-worker-3",
+              "Role": "worker"
+            },
+            "tags_all": {
+              "Name": "zero-trust-platform-worker-3",
+              "Role": "worker"
+            },
+            "tenancy": "default",
+            "timeouts": null,
+            "user_data": "#!/bin/bash\r\nset -euxo pipefail\r\n\r\n# Disable swap (required by kubelet)\r\nswapoff -a\r\nsed -i '/ swap / s/^/#/' /etc/fstab\r\n\r\n# Kernel modules + sysctl for K8s networking\r\ncat \u003c\u003cMODULES | tee /etc/modules-load.d/k8s.conf\r\noverlay\r\nbr_netfilter\r\nMODULES\r\nmodprobe overlay\r\nmodprobe br_netfilter\r\n\r\ncat \u003c\u003cSYSCTL | tee /etc/sysctl.d/k8s.conf\r\nnet.bridge.bridge-nf-call-iptables  = 1\r\nnet.bridge.bridge-nf-call-ip6tables = 1\r\nnet.ipv4.ip_forward                 = 1\r\nSYSCTL\r\nsysctl --system\r\n\r\n# Install containerd\r\napt-get update\r\napt-get install -y ca-certificates curl gnupg apt-transport-https\r\n\r\ninstall -m 0755 -d /etc/apt/keyrings\r\ncurl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg\r\nchmod a+r /etc/apt/keyrings/docker.gpg\r\necho \"deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release \u0026\u0026 echo \"$VERSION_CODENAME\") stable\" | tee /etc/apt/sources.list.d/docker.list \u003e /dev/null\r\napt-get update\r\napt-get install -y containerd.io\r\n\r\nmkdir -p /etc/containerd\r\ncontainerd config default | tee /etc/containerd/config.toml\r\nsed -i 's/SystemdCgroup = false/SystemdCgroup = true/' /etc/containerd/config.toml\r\nsystemctl restart containerd\r\nsystemctl enable containerd\r\n\r\n# Install kubeadm, kubelet, kubectl\r\ncurl -fsSL https://pkgs.k8s.io/core:/stable:/v1.30/deb/Release.key | gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg\r\necho 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.30/deb/ /' | tee /etc/apt/sources.list.d/kubernetes.list\r\n\r\napt-get update\r\napt-get install -y kubelet kubeadm kubectl\r\napt-mark hold kubelet kubeadm kubectl\r\n\r\necho \"Bootstrap complete. Node ready for 'kubeadm init' or 'kubeadm join'.\" \u003e /var/log/bootstrap-done.log\r\n",
+            "user_data_base64": null,
+            "user_data_replace_on_change": false,
+            "volume_tags": null,
+            "vpc_security_group_ids": [
+              "sg-0eeb3980d6c78508c"
+            ]
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjo2MDAwMDAwMDAwMDAsImRlbGV0ZSI6MTIwMDAwMDAwMDAwMCwicmVhZCI6OTAwMDAwMDAwMDAwLCJ1cGRhdGUiOjYwMDAwMDAwMDAwMH0sInNjaGVtYV92ZXJzaW9uIjoiMiJ9",
+          "dependencies": [
+            "aws_iam_instance_profile.ec2_node_profile",
+            "aws_iam_role.ec2_node_role",
+            "aws_key_pair.generated",
+            "aws_security_group.k8s_worker",
+            "aws_subnet.public",
+            "aws_vpc.main",
+            "data.aws_ami.ubuntu"
+          ]
+        },
+        {
+          "index_key": 3,
+          "schema_version": 2,
+          "attributes": {
+            "ami": "ami-0aa761682283b4cc8",
+            "arn": "arn:aws:ec2:ap-south-1:449902674551:instance/i-0f469f8394cf4f6b7",
+            "associate_public_ip_address": true,
+            "availability_zone": "ap-south-1a",
+            "capacity_reservation_specification": [
+              {
+                "capacity_reservation_preference": "open",
+                "capacity_reservation_target": []
+              }
+            ],
+            "cpu_options": [
+              {
+                "amd_sev_snp": "",
+                "core_count": 1,
+                "nested_virtualization": "",
+                "threads_per_core": 2
+              }
+            ],
+            "credit_specification": [],
+            "disable_api_stop": false,
+            "disable_api_termination": false,
+            "ebs_block_device": [
+              {
+                "delete_on_termination": false,
+                "device_name": "/dev/xvdaa",
+                "encrypted": false,
+                "iops": 3000,
+                "kms_key_id": "",
+                "snapshot_id": "",
+                "tags": {
+                  "CSIVolumeName": "pvc-4f37b1f7-0a95-4a83-8eec-e8fac3d73ed6",
+                  "ebs.csi.aws.com/cluster": "true",
+                  "kubernetes.io/created-for/pv/name": "pvc-4f37b1f7-0a95-4a83-8eec-e8fac3d73ed6",
+                  "kubernetes.io/created-for/pvc/name": "elasticsearch-master-elasticsearch-master-0",
+                  "kubernetes.io/created-for/pvc/namespace": "monitoring"
+                },
+                "tags_all": {
+                  "CSIVolumeName": "pvc-4f37b1f7-0a95-4a83-8eec-e8fac3d73ed6",
+                  "ebs.csi.aws.com/cluster": "true",
+                  "kubernetes.io/created-for/pv/name": "pvc-4f37b1f7-0a95-4a83-8eec-e8fac3d73ed6",
+                  "kubernetes.io/created-for/pvc/name": "elasticsearch-master-elasticsearch-master-0",
+                  "kubernetes.io/created-for/pvc/namespace": "monitoring"
+                },
+                "throughput": 125,
+                "volume_id": "vol-04b985319721b3ff7",
+                "volume_size": 10,
+                "volume_type": "gp3"
+              }
+            ],
+            "ebs_optimized": false,
+            "enable_primary_ipv6": null,
+            "enclave_options": [
+              {
+                "enabled": false
+              }
+            ],
+            "ephemeral_block_device": [],
+            "force_destroy": false,
+            "get_password_data": false,
+            "hibernation": false,
+            "host_id": "",
+            "host_resource_group_arn": null,
+            "iam_instance_profile": "zero-trust-platform-ec2-node-profile",
+            "id": "i-0f469f8394cf4f6b7",
+            "instance_initiated_shutdown_behavior": "stop",
+            "instance_lifecycle": "",
+            "instance_market_options": [],
+            "instance_state": "running",
+            "instance_type": "m7i-flex.large",
+            "ipv6_address_count": 0,
+            "ipv6_addresses": [],
+            "key_name": "zero-trust-key",
+            "launch_template": [],
+            "maintenance_options": [
+              {
+                "auto_recovery": "default"
+              }
+            ],
+            "metadata_options": [
+              {
+                "http_endpoint": "enabled",
+                "http_protocol_ipv6": "disabled",
+                "http_put_response_hop_limit": 1,
+                "http_tokens": "optional",
+                "instance_metadata_tags": "disabled"
+              }
+            ],
+            "monitoring": false,
+            "network_interface": [],
+            "outpost_arn": "",
+            "password_data": "",
+            "placement_group": "",
+            "placement_group_id": "",
+            "placement_partition_number": 0,
+            "primary_network_interface": [
+              {
+                "delete_on_termination": true,
+                "network_interface_id": "eni-0aa00c2d3dea8e15d"
+              }
+            ],
+            "primary_network_interface_id": "eni-0aa00c2d3dea8e15d",
+            "private_dns": "ip-10-20-1-113.ap-south-1.compute.internal",
+            "private_dns_name_options": [
+              {
+                "enable_resource_name_dns_a_record": false,
+                "enable_resource_name_dns_aaaa_record": false,
+                "hostname_type": "ip-name"
+              }
+            ],
+            "private_ip": "10.20.1.113",
+            "public_dns": "ec2-13-127-212-231.ap-south-1.compute.amazonaws.com",
+            "public_ip": "13.127.212.231",
+            "region": "ap-south-1",
+            "root_block_device": [
+              {
+                "delete_on_termination": true,
+                "device_name": "/dev/sda1",
+                "encrypted": false,
+                "iops": 3000,
+                "kms_key_id": "",
+                "tags": {},
+                "tags_all": {},
+                "throughput": 125,
+                "volume_id": "vol-05e08af14f51cb375",
+                "volume_size": 20,
+                "volume_type": "gp3"
+              }
+            ],
+            "secondary_network_interface": [],
+            "secondary_private_ips": [],
+            "security_groups": [],
+            "source_dest_check": true,
+            "spot_instance_request_id": "",
+            "subnet_id": "subnet-0437419994752dd78",
+            "tags": {
+              "Name": "zero-trust-platform-worker-4",
+              "Role": "worker"
+            },
+            "tags_all": {
+              "Name": "zero-trust-platform-worker-4",
+              "Role": "worker"
+            },
+            "tenancy": "default",
+            "timeouts": null,
+            "user_data": "#!/bin/bash\r\nset -euxo pipefail\r\n\r\n# Disable swap (required by kubelet)\r\nswapoff -a\r\nsed -i '/ swap / s/^/#/' /etc/fstab\r\n\r\n# Kernel modules + sysctl for K8s networking\r\ncat \u003c\u003cMODULES | tee /etc/modules-load.d/k8s.conf\r\noverlay\r\nbr_netfilter\r\nMODULES\r\nmodprobe overlay\r\nmodprobe br_netfilter\r\n\r\ncat \u003c\u003cSYSCTL | tee /etc/sysctl.d/k8s.conf\r\nnet.bridge.bridge-nf-call-iptables  = 1\r\nnet.bridge.bridge-nf-call-ip6tables = 1\r\nnet.ipv4.ip_forward                 = 1\r\nSYSCTL\r\nsysctl --system\r\n\r\n# Install containerd\r\napt-get update\r\napt-get install -y ca-certificates curl gnupg apt-transport-https\r\n\r\ninstall -m 0755 -d /etc/apt/keyrings\r\ncurl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg\r\nchmod a+r /etc/apt/keyrings/docker.gpg\r\necho \"deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release \u0026\u0026 echo \"$VERSION_CODENAME\") stable\" | tee /etc/apt/sources.list.d/docker.list \u003e /dev/null\r\napt-get update\r\napt-get install -y containerd.io\r\n\r\nmkdir -p /etc/containerd\r\ncontainerd config default | tee /etc/containerd/config.toml\r\nsed -i 's/SystemdCgroup = false/SystemdCgroup = true/' /etc/containerd/config.toml\r\nsystemctl restart containerd\r\nsystemctl enable containerd\r\n\r\n# Install kubeadm, kubelet, kubectl\r\ncurl -fsSL https://pkgs.k8s.io/core:/stable:/v1.30/deb/Release.key | gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg\r\necho 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.30/deb/ /' | tee /etc/apt/sources.list.d/kubernetes.list\r\n\r\napt-get update\r\napt-get install -y kubelet kubeadm kubectl\r\napt-mark hold kubelet kubeadm kubectl\r\n\r\necho \"Bootstrap complete. Node ready for 'kubeadm init' or 'kubeadm join'.\" \u003e /var/log/bootstrap-done.log\r\n",
+            "user_data_base64": null,
+            "user_data_replace_on_change": false,
+            "volume_tags": null,
+            "vpc_security_group_ids": [
+              "sg-0eeb3980d6c78508c"
+            ]
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjo2MDAwMDAwMDAwMDAsImRlbGV0ZSI6MTIwMDAwMDAwMDAwMCwicmVhZCI6OTAwMDAwMDAwMDAwLCJ1cGRhdGUiOjYwMDAwMDAwMDAwMH0sInNjaGVtYV92ZXJzaW9uIjoiMiJ9",
+          "dependencies": [
+            "aws_iam_instance_profile.ec2_node_profile",
+            "aws_iam_role.ec2_node_role",
+            "aws_key_pair.generated",
+            "aws_security_group.k8s_worker",
+            "aws_subnet.public",
+            "aws_vpc.main",
+            "data.aws_ami.ubuntu"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_internet_gateway",
+      "name": "main",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "arn": "arn:aws:ec2:ap-south-1:449902674551:internet-gateway/igw-0bab0df04a4e2c2d6",
+            "id": "igw-0bab0df04a4e2c2d6",
+            "owner_id": "449902674551",
+            "region": "ap-south-1",
+            "tags": {
+              "Name": "zero-trust-platform-igw"
+            },
+            "tags_all": {
+              "Name": "zero-trust-platform-igw"
+            },
+            "timeouts": null,
+            "vpc_id": "vpc-01c4520d98c3021a2"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxMjAwMDAwMDAwMDAwLCJkZWxldGUiOjEyMDAwMDAwMDAwMDAsInVwZGF0ZSI6MTIwMDAwMDAwMDAwMH19",
+          "dependencies": [
+            "aws_vpc.main"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_route_table",
+      "name": "public",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "arn": "arn:aws:ec2:ap-south-1:449902674551:route-table/rtb-013b8faea26134c44",
+            "id": "rtb-013b8faea26134c44",
+            "owner_id": "449902674551",
+            "propagating_vgws": [],
+            "region": "ap-south-1",
+            "route": [
+              {
+                "carrier_gateway_id": "",
+                "cidr_block": "0.0.0.0/0",
+                "core_network_arn": "",
+                "destination_prefix_list_id": "",
+                "egress_only_gateway_id": "",
+                "gateway_id": "igw-0bab0df04a4e2c2d6",
+                "ipv6_cidr_block": "",
+                "local_gateway_id": "",
+                "nat_gateway_id": "",
+                "network_interface_id": "",
+                "odb_network_arn": "",
+                "transit_gateway_id": "",
+                "vpc_endpoint_id": "",
+                "vpc_peering_connection_id": ""
+              }
+            ],
+            "tags": {
+              "Name": "zero-trust-platform-public-rt"
+            },
+            "tags_all": {
+              "Name": "zero-trust-platform-public-rt"
+            },
+            "timeouts": null,
+            "vpc_id": "vpc-01c4520d98c3021a2"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjozMDAwMDAwMDAwMDAsImRlbGV0ZSI6MzAwMDAwMDAwMDAwLCJ1cGRhdGUiOjEyMDAwMDAwMDAwMH19",
+          "dependencies": [
+            "aws_internet_gateway.main",
+            "aws_vpc.main"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_route_table_association",
+      "name": "public",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "gateway_id": "",
+            "id": "rtbassoc-0fd904b418539bd63",
+            "region": "ap-south-1",
+            "route_table_id": "rtb-013b8faea26134c44",
+            "subnet_id": "subnet-0437419994752dd78",
+            "timeouts": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjozMDAwMDAwMDAwMDAsImRlbGV0ZSI6MzAwMDAwMDAwMDAwLCJ1cGRhdGUiOjEyMDAwMDAwMDAwMH19",
+          "dependencies": [
+            "aws_internet_gateway.main",
+            "aws_route_table.public",
+            "aws_subnet.public",
+            "aws_vpc.main"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_s3_bucket",
+      "name": "oidc_provider",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "acceleration_status": "",
+            "acl": null,
+            "arn": "arn:aws:s3:::zero-trust-platform-oidc-449902674551",
+            "bucket": "zero-trust-platform-oidc-449902674551",
+            "bucket_domain_name": "zero-trust-platform-oidc-449902674551.s3.amazonaws.com",
+            "bucket_namespace": "global",
+            "bucket_prefix": "",
+            "bucket_region": "ap-south-1",
+            "bucket_regional_domain_name": "zero-trust-platform-oidc-449902674551.s3.ap-south-1.amazonaws.com",
+            "cors_rule": [],
+            "force_destroy": false,
+            "grant": [
+              {
+                "id": "a4b7ce844caffefdc8c66546c78f70f9c015b5e5039f4d3a4ed260d056675e17",
+                "permissions": [
+                  "FULL_CONTROL"
+                ],
+                "type": "CanonicalUser",
+                "uri": ""
+              }
+            ],
+            "hosted_zone_id": "Z11RGJOFQNVJUP",
+            "id": "zero-trust-platform-oidc-449902674551",
+            "lifecycle_rule": [],
+            "logging": [],
+            "object_lock_configuration": [],
+            "object_lock_enabled": false,
+            "policy": "{\"Statement\":[{\"Action\":\"s3:GetObject\",\"Effect\":\"Allow\",\"Principal\":\"*\",\"Resource\":\"arn:aws:s3:::zero-trust-platform-oidc-449902674551/*\",\"Sid\":\"PublicReadForOIDCDiscovery\"}],\"Version\":\"2012-10-17\"}",
+            "region": "ap-south-1",
+            "replication_configuration": [],
+            "request_payer": "BucketOwner",
+            "server_side_encryption_configuration": [
+              {
+                "rule": [
+                  {
+                    "apply_server_side_encryption_by_default": [
+                      {
+                        "kms_master_key_id": "",
+                        "sse_algorithm": "AES256"
+                      }
+                    ],
+                    "bucket_key_enabled": false
+                  }
+                ]
+              }
+            ],
+            "tags": {
+              "Name": "zero-trust-platform-oidc-provider"
+            },
+            "tags_all": {
+              "Name": "zero-trust-platform-oidc-provider"
+            },
+            "timeouts": null,
+            "versioning": [
+              {
+                "enabled": false,
+                "mfa_delete": false
+              }
+            ],
+            "website": [
+              {
+                "error_document": "",
+                "index_document": "index.html",
+                "redirect_all_requests_to": "",
+                "routing_rules": ""
+              }
+            ],
+            "website_domain": "s3-website.ap-south-1.amazonaws.com",
+            "website_endpoint": "zero-trust-platform-oidc-449902674551.s3-website.ap-south-1.amazonaws.com"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxMjAwMDAwMDAwMDAwLCJkZWxldGUiOjM2MDAwMDAwMDAwMDAsInJlYWQiOjEyMDAwMDAwMDAwMDAsInVwZGF0ZSI6MTIwMDAwMDAwMDAwMH19",
+          "dependencies": [
+            "data.aws_caller_identity.current"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_s3_bucket_policy",
+      "name": "oidc_provider_public_read",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "bucket": "zero-trust-platform-oidc-449902674551",
+            "id": "zero-trust-platform-oidc-449902674551",
+            "policy": "{\"Statement\":[{\"Action\":\"s3:GetObject\",\"Effect\":\"Allow\",\"Principal\":\"*\",\"Resource\":\"arn:aws:s3:::zero-trust-platform-oidc-449902674551/*\",\"Sid\":\"PublicReadForOIDCDiscovery\"}],\"Version\":\"2012-10-17\"}",
+            "region": "ap-south-1"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "bnVsbA==",
+          "dependencies": [
+            "aws_s3_bucket.oidc_provider",
+            "aws_s3_bucket_public_access_block.oidc_provider",
+            "data.aws_caller_identity.current"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_s3_bucket_public_access_block",
+      "name": "oidc_provider",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "block_public_acls": false,
+            "block_public_policy": false,
+            "bucket": "zero-trust-platform-oidc-449902674551",
+            "id": "zero-trust-platform-oidc-449902674551",
+            "ignore_public_acls": false,
+            "region": "ap-south-1",
+            "restrict_public_buckets": false,
+            "skip_destroy": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "bnVsbA==",
+          "dependencies": [
+            "aws_s3_bucket.oidc_provider",
+            "data.aws_caller_identity.current"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_s3_bucket_website_configuration",
+      "name": "oidc_provider",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "bucket": "zero-trust-platform-oidc-449902674551",
+            "error_document": [],
+            "expected_bucket_owner": "",
+            "id": "zero-trust-platform-oidc-449902674551",
+            "index_document": [
+              {
+                "suffix": "index.html"
+              }
+            ],
+            "redirect_all_requests_to": [],
+            "region": "ap-south-1",
+            "routing_rule": [],
+            "routing_rules": "",
+            "website_domain": "s3-website.ap-south-1.amazonaws.com",
+            "website_endpoint": "zero-trust-platform-oidc-449902674551.s3-website.ap-south-1.amazonaws.com"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "bnVsbA==",
+          "dependencies": [
+            "aws_s3_bucket.oidc_provider",
+            "data.aws_caller_identity.current"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_security_group",
+      "name": "k8s_master",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 1,
+          "attributes": {
+            "arn": "arn:aws:ec2:ap-south-1:449902674551:security-group/sg-082aa88f936937fa4",
+            "description": "Security group for kubeadm control plane node",
+            "egress": [
+              {
+                "cidr_blocks": [
+                  "0.0.0.0/0"
+                ],
+                "description": "Allow all outbound",
+                "from_port": 0,
+                "ipv6_cidr_blocks": [],
+                "prefix_list_ids": [],
+                "protocol": "-1",
+                "security_groups": [],
+                "self": false,
+                "to_port": 0
+              }
+            ],
+            "id": "sg-082aa88f936937fa4",
+            "ingress": [
+              {
+                "cidr_blocks": [
+                  "0.0.0.0/0"
+                ],
+                "description": "SSH from admin IP only",
+                "from_port": 22,
+                "ipv6_cidr_blocks": [],
+                "prefix_list_ids": [],
+                "protocol": "tcp",
+                "security_groups": [],
+                "self": false,
+                "to_port": 22
+              },
+              {
+                "cidr_blocks": [
+                  "10.20.0.0/16"
+                ],
+                "description": "Calico IP-in-IP encapsulation between nodes",
+                "from_port": 0,
+                "ipv6_cidr_blocks": [],
+                "prefix_list_ids": [],
+                "protocol": "4",
+                "security_groups": [],
+                "self": false,
+                "to_port": 0
+              },
+              {
+                "cidr_blocks": [
+                  "10.20.0.0/16"
+                ],
+                "description": "Calico VXLAN internal",
+                "from_port": 4789,
+                "ipv6_cidr_blocks": [],
+                "prefix_list_ids": [],
+                "protocol": "udp",
+                "security_groups": [],
+                "self": false,
+                "to_port": 4789
+              },
+              {
+                "cidr_blocks": [
+                  "10.20.0.0/16"
+                ],
+                "description": "Calico networking internal",
+                "from_port": 179,
+                "ipv6_cidr_blocks": [],
+                "prefix_list_ids": [],
+                "protocol": "tcp",
+                "security_groups": [],
+                "self": false,
+                "to_port": 179
+              },
+              {
+                "cidr_blocks": [
+                  "10.20.0.0/16"
+                ],
+                "description": "K8s API server from workers inside VPC",
+                "from_port": 6443,
+                "ipv6_cidr_blocks": [],
+                "prefix_list_ids": [],
+                "protocol": "tcp",
+                "security_groups": [],
+                "self": false,
+                "to_port": 6443
+              },
+              {
+                "cidr_blocks": [
+                  "10.20.0.0/16"
+                ],
+                "description": "etcd internal only",
+                "from_port": 2379,
+                "ipv6_cidr_blocks": [],
+                "prefix_list_ids": [],
+                "protocol": "tcp",
+                "security_groups": [],
+                "self": false,
+                "to_port": 2380
+              },
+              {
+                "cidr_blocks": [
+                  "10.20.0.0/16"
+                ],
+                "description": "kubelet API internal",
+                "from_port": 10250,
+                "ipv6_cidr_blocks": [],
+                "prefix_list_ids": [],
+                "protocol": "tcp",
+                "security_groups": [],
+                "self": false,
+                "to_port": 10259
+              },
+              {
+                "cidr_blocks": [
+                  "49.43.227.88/32"
+                ],
+                "description": "K8s API server from admin IP only",
+                "from_port": 6443,
+                "ipv6_cidr_blocks": [],
+                "prefix_list_ids": [],
+                "protocol": "tcp",
+                "security_groups": [],
+                "self": false,
+                "to_port": 6443
+              },
+              {
+                "cidr_blocks": [
+                  "49.43.227.88/32"
+                ],
+                "description": "NodePort range from admin IP",
+                "from_port": 30000,
+                "ipv6_cidr_blocks": [],
+                "prefix_list_ids": [],
+                "protocol": "tcp",
+                "security_groups": [],
+                "self": false,
+                "to_port": 32767
+              }
+            ],
+            "name": "zero-trust-platform-master-sg",
+            "name_prefix": "",
+            "owner_id": "449902674551",
+            "region": "ap-south-1",
+            "revoke_rules_on_delete": false,
+            "tags": {
+              "Name": "zero-trust-platform-master-sg"
+            },
+            "tags_all": {
+              "Name": "zero-trust-platform-master-sg"
+            },
+            "timeouts": null,
+            "vpc_id": "vpc-01c4520d98c3021a2"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjo2MDAwMDAwMDAwMDAsImRlbGV0ZSI6OTAwMDAwMDAwMDAwfSwic2NoZW1hX3ZlcnNpb24iOiIxIn0=",
+          "dependencies": [
+            "aws_vpc.main"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_security_group",
+      "name": "k8s_worker",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 1,
+          "attributes": {
+            "arn": "arn:aws:ec2:ap-south-1:449902674551:security-group/sg-0eeb3980d6c78508c",
+            "description": "Security group for kubeadm worker nodes",
+            "egress": [
+              {
+                "cidr_blocks": [
+                  "0.0.0.0/0"
+                ],
+                "description": "Allow all outbound",
+                "from_port": 0,
+                "ipv6_cidr_blocks": [],
+                "prefix_list_ids": [],
+                "protocol": "-1",
+                "security_groups": [],
+                "self": false,
+                "to_port": 0
+              }
+            ],
+            "id": "sg-0eeb3980d6c78508c",
+            "ingress": [
+              {
+                "cidr_blocks": [
+                  "0.0.0.0/0"
+                ],
+                "description": "NodePort range from admin IP for direct testing",
+                "from_port": 30000,
+                "ipv6_cidr_blocks": [],
+                "prefix_list_ids": [],
+                "protocol": "tcp",
+                "security_groups": [],
+                "self": false,
+                "to_port": 32767
+              },
+              {
+                "cidr_blocks": [
+                  "0.0.0.0/0"
+                ],
+                "description": "SSH from admin IP only",
+                "from_port": 22,
+                "ipv6_cidr_blocks": [],
+                "prefix_list_ids": [],
+                "protocol": "tcp",
+                "security_groups": [],
+                "self": false,
+                "to_port": 22
+              },
+              {
+                "cidr_blocks": [
+                  "10.20.0.0/16"
+                ],
+                "description": "Calico IP-in-IP encapsulation between nodes",
+                "from_port": 0,
+                "ipv6_cidr_blocks": [],
+                "prefix_list_ids": [],
+                "protocol": "4",
+                "security_groups": [],
+                "self": false,
+                "to_port": 0
+              },
+              {
+                "cidr_blocks": [
+                  "10.20.0.0/16"
+                ],
+                "description": "Calico VXLAN internal",
+                "from_port": 4789,
+                "ipv6_cidr_blocks": [],
+                "prefix_list_ids": [],
+                "protocol": "udp",
+                "security_groups": [],
+                "self": false,
+                "to_port": 4789
+              },
+              {
+                "cidr_blocks": [
+                  "10.20.0.0/16"
+                ],
+                "description": "Calico networking internal",
+                "from_port": 179,
+                "ipv6_cidr_blocks": [],
+                "prefix_list_ids": [],
+                "protocol": "tcp",
+                "security_groups": [],
+                "self": false,
+                "to_port": 179
+              },
+              {
+                "cidr_blocks": [
+                  "10.20.0.0/16"
+                ],
+                "description": "NodePort range internal + admin IP",
+                "from_port": 30000,
+                "ipv6_cidr_blocks": [],
+                "prefix_list_ids": [],
+                "protocol": "tcp",
+                "security_groups": [],
+                "self": false,
+                "to_port": 32767
+              },
+              {
+                "cidr_blocks": [
+                  "10.20.0.0/16"
+                ],
+                "description": "kubelet API internal",
+                "from_port": 10250,
+                "ipv6_cidr_blocks": [],
+                "prefix_list_ids": [],
+                "protocol": "tcp",
+                "security_groups": [],
+                "self": false,
+                "to_port": 10259
+              }
+            ],
+            "name": "zero-trust-platform-worker-sg",
+            "name_prefix": "",
+            "owner_id": "449902674551",
+            "region": "ap-south-1",
+            "revoke_rules_on_delete": false,
+            "tags": {
+              "Name": "zero-trust-platform-worker-sg"
+            },
+            "tags_all": {
+              "Name": "zero-trust-platform-worker-sg"
+            },
+            "timeouts": null,
+            "vpc_id": "vpc-01c4520d98c3021a2"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjo2MDAwMDAwMDAwMDAsImRlbGV0ZSI6OTAwMDAwMDAwMDAwfSwic2NoZW1hX3ZlcnNpb24iOiIxIn0=",
+          "dependencies": [
+            "aws_vpc.main"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_subnet",
+      "name": "public",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 1,
+          "attributes": {
+            "arn": "arn:aws:ec2:ap-south-1:449902674551:subnet/subnet-0437419994752dd78",
+            "assign_ipv6_address_on_creation": false,
+            "availability_zone": "ap-south-1a",
+            "availability_zone_id": "aps1-az1",
+            "cidr_block": "10.20.1.0/24",
+            "customer_owned_ipv4_pool": "",
+            "enable_dns64": false,
+            "enable_lni_at_device_index": 0,
+            "enable_resource_name_dns_a_record_on_launch": false,
+            "enable_resource_name_dns_aaaa_record_on_launch": false,
+            "id": "subnet-0437419994752dd78",
+            "ipv4_ipam_pool_id": null,
+            "ipv4_netmask_length": null,
+            "ipv6_cidr_block": "",
+            "ipv6_cidr_block_association_id": "",
+            "ipv6_ipam_pool_id": null,
+            "ipv6_native": false,
+            "ipv6_netmask_length": null,
+            "map_customer_owned_ip_on_launch": false,
+            "map_public_ip_on_launch": true,
+            "outpost_arn": "",
+            "owner_id": "449902674551",
+            "private_dns_hostname_type_on_launch": "ip-name",
+            "region": "ap-south-1",
+            "tags": {
+              "Name": "zero-trust-platform-public-subnet"
+            },
+            "tags_all": {
+              "Name": "zero-trust-platform-public-subnet"
+            },
+            "timeouts": null,
+            "vpc_id": "vpc-01c4520d98c3021a2"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjo2MDAwMDAwMDAwMDAsImRlbGV0ZSI6MTIwMDAwMDAwMDAwMH0sInNjaGVtYV92ZXJzaW9uIjoiMSJ9",
+          "dependencies": [
+            "aws_vpc.main"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_vpc",
+      "name": "main",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 1,
+          "attributes": {
+            "arn": "arn:aws:ec2:ap-south-1:449902674551:vpc/vpc-01c4520d98c3021a2",
+            "assign_generated_ipv6_cidr_block": false,
+            "cidr_block": "10.20.0.0/16",
+            "default_network_acl_id": "acl-056c0e82d097ac7cd",
+            "default_route_table_id": "rtb-04ed8ba3cfe5a0968",
+            "default_security_group_id": "sg-01203cf42d8adb69a",
+            "dhcp_options_id": "dopt-0d8cc98cc221cbb2b",
+            "enable_dns_hostnames": true,
+            "enable_dns_support": true,
+            "enable_network_address_usage_metrics": false,
+            "id": "vpc-01c4520d98c3021a2",
+            "instance_tenancy": "default",
+            "ipv4_ipam_pool_id": null,
+            "ipv4_netmask_length": null,
+            "ipv6_association_id": "",
+            "ipv6_cidr_block": "",
+            "ipv6_cidr_block_network_border_group": "",
+            "ipv6_ipam_pool_id": "",
+            "ipv6_netmask_length": 0,
+            "main_route_table_id": "rtb-04ed8ba3cfe5a0968",
+            "owner_id": "449902674551",
+            "region": "ap-south-1",
+            "tags": {
+              "Name": "zero-trust-platform-vpc"
+            },
+            "tags_all": {
+              "Name": "zero-trust-platform-vpc"
+            }
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJzY2hlbWFfdmVyc2lvbiI6IjEifQ=="
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "local_file",
+      "name": "ansible_inventory",
+      "provider": "provider[\"registry.terraform.io/hashicorp/local\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "content": "\n[master]\nk8s-master ansible_host=13.207.50.82\n\n[workers]\nk8s-worker-1 ansible_host=13.233.112.68\nk8s-worker-2 ansible_host=65.0.89.57\nk8s-worker-3 ansible_host=65.0.91.98\nk8s-worker-4 ansible_host=13.127.212.231\n\n[monitoring]\nk8s-worker-3 ansible_host=65.0.91.98\n\n[logging]\nk8s-worker-4 ansible_host=13.127.212.231\n\n[all:vars]\nansible_python_interpreter=/usr/bin/python3\n",
+            "content_base64": null,
+            "content_base64sha256": "gPQkCCENr93WaXpcnE3OYG+01EOWOfoZhaK17dDRtIo=",
+            "content_base64sha512": "GelJYeu7EhStPdEEfyVImTb4a8akcExZckwgtWliLbMHzs0R25lL1vq/a0hmBuRI03Jot1vrGM7gb27r7lwKRw==",
+            "content_md5": "88645ab40016a4e30268ed615ee2d290",
+            "content_sha1": "25537723554195aeee103ee43d2ca9176dbb169b",
+            "content_sha256": "80f42408210dafddd6697a5c9c4dce606fb4d4439639fa1985a2b5edd0d1b48a",
+            "content_sha512": "19e94961ebbb1214ad3dd1047f25489936f86bc6a4704c59724c20b569622db307cecd11db994bd6fabf6b486606e448d37268b75beb18cee06f6eebee5c0a47",
+            "directory_permission": "0777",
+            "file_permission": "0777",
+            "filename": "../ansible/inventory.ini",
+            "id": "25537723554195aeee103ee43d2ca9176dbb169b",
+            "sensitive_content": null,
+            "source": null
+          },
+          "sensitive_attributes": [
+            [
+              {
+                "type": "get_attr",
+                "value": "sensitive_content"
+              }
+            ]
+          ],
+          "identity_schema_version": 0,
+          "dependencies": [
+            "aws_eip.master",
+            "aws_iam_instance_profile.ec2_node_profile",
+            "aws_iam_role.ec2_node_role",
+            "aws_instance.k8s_master",
+            "aws_instance.k8s_worker",
+            "aws_key_pair.generated",
+            "aws_security_group.k8s_master",
+            "aws_security_group.k8s_worker",
+            "aws_subnet.public",
+            "aws_vpc.main",
+            "data.aws_ami.ubuntu"
+          ]
+        }
+      ]
+    }
+  ],
+  "check_results": null
+}
+
