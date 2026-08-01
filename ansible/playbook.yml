@@ -276,11 +276,11 @@
       changed_when: false
 
     - name: Apply custom Gatekeeper ConstraintTemplate (block privileged containers)
-      command: kubectl apply -f /home/ubuntu/zero-trust-platform/gatekeeper/Constrainttemplateprivileged.yaml
+      command: kubectl apply -f /home/ubuntu/zero-trust-platform/platform/gatekeeper/constraint-template-privileged.yaml
       changed_when: true
 
     - name: Apply the Constraint enforcing the policy
-      command: kubectl apply -f /home/ubuntu/zero-trust-platform/gatekeeper/Constraintprivileged.yaml
+      command: kubectl apply -f /home/ubuntu/zero-trust-platform/platform/gatekeeper/constraint-privileged.yaml
       changed_when: true
 
 - name: Label the dedicated monitoring node
