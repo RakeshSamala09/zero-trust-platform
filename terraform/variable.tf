@@ -28,8 +28,8 @@ variable "availability_zone" {
   default     = "ap-south-1a"
 }
 
-variable "my_ip_cidr" {
-  description = "YOUR public IP in CIDR form, e.g. 1.2.3.4/32 — get it from https://checkip.amazonaws.com. Used to lock down SSH and K8s API to only you."
+variable "my_ip_cidr" {from https://checkip.amazonaws.com. Used to lock down SSH and K8s API to only you."
+  description = "YOUR public IP in CIDR form, e.g. 1.2.3.4/32 — get it 
   type        = string
   # no default on purpose — force yourself to set this, don't leave SSH open to 0.0.0.0/0
 }

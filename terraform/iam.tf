@@ -23,19 +23,90 @@ resource "aws_iam_role" "ec2_node_role" {
   }
 }
 
-
 # Pull permission for ECR (Jenkins builds push here, nodes pull from here)
 resource "aws_iam_role_policy_attachment" "ecr_read_only" {
   role       = aws_iam_role.ec2_node_role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
 }
-resource "aws_iam_user_policy_attachment" "github_actions_ec2" {
-  user       = "github-actions-ecr-push"
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2FullAccess"
-}
-resource "aws_iam_user_policy_attachment" "github_actions_s3" {
-  user       = "github-actions-ecr-push"
-  policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+
+########################################
+# CI user (github-actions-ecr-push) — SCOPED, not FullAccess.
+#
+# Previously this user had AmazonEC2FullAccess + AmazonS3FullAccess
+# attached, which contradicts the zero-trust design of this stack: a
+# leaked static key for this user would mean full EC2 + full S3 control
+# on the whole account. Replaced with a single least-privilege inline
+# policy scoped to exactly what CI needs:
+#   - push/pull images to ECR
+#   - create/manage the EC2 instances this stack provisions
+#   - read/write the Terraform state object + use the lock table
+#
+# Longer term: replace this static-key user entirely with GitHub OIDC
+# (see PART 4 below) and delete this user.
+########################################
+
+data "aws_caller_identity" "current" {}
+
+resource "aws_iam_user_policy" "github_actions_scoped" {
+  name = "${var.project_name}-github-actions-scoped"
+  user = "github-actions-ecr-push"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "ECRPush"
+        Effect = "Allow"
+        Action = [
+          "ecr:GetAuthorizationToken",
+          "ecr:BatchCheckLayerAvailability",
+          "ecr:GetDownloadUrlForLayer",
+          "ecr:BatchGetImage",
+          "ecr:PutImage",
+          "ecr:InitiateLayerUpload",
+          "ecr:UploadLayerPart",
+          "ecr:CompleteLayerUpload"
+        ]
+        Resource = "*"
+      },
+      {
+        Sid    = "EC2Lifecycle"
+        Effect = "Allow"
+        Action = [
+          "ec2:RunInstances",
+          "ec2:TerminateInstances",
+          "ec2:StartInstances",
+          "ec2:StopInstances",
+          "ec2:Describe*",
+          "ec2:CreateTags"
+        ]
+        Resource = "*"
+      },
+      {
+        Sid    = "TerraformStateAccess"
+        Effect = "Allow"
+        Action = [
+          "s3:GetObject",
+          "s3:PutObject",
+          "s3:ListBucket"
+        ]
+        Resource = [
+          "arn:aws:s3:::${var.project_name}-tf-state-${data.aws_caller_identity.current.account_id}",
+          "arn:aws:s3:::${var.project_name}-tf-state-${data.aws_caller_identity.current.account_id}/*"
+        ]
+      },
+      {
+        Sid    = "TerraformLockTable"
+        Effect = "Allow"
+        Action = [
+          "dynamodb:GetItem",
+          "dynamodb:PutItem",
+          "dynamodb:DeleteItem"
+        ]
+        Resource = "arn:aws:dynamodb:${var.aws_region}:${data.aws_caller_identity.current.account_id}:table/${var.project_name}-tf-lock"
+      }
+    ]
+  })
 }
 
 # SSM so you can shell in without opening SSH broadly later if you want
@@ -123,8 +194,6 @@ resource "aws_s3_bucket_website_configuration" "oidc_provider" {
   }
 }
 
-data "aws_caller_identity" "current" {}
-
 # Fetches the TLS certificate thumbprint AWS needs to trust the S3-hosted
 # OIDC issuer. S3 static website endpoints sit behind Amazon's own cert chain.
 data "tls_certificate" "oidc_s3_cert" {
@@ -185,3 +254,41 @@ resource "aws_iam_role_policy_attachment" "jenkins_ecr_push" {
   role       = aws_iam_role.jenkins_pod_role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPowerUser"
 }
+
+########################################
+# PART 4 (optional, recommended next step): GitHub OIDC role
+#
+# Uncomment + fill in <ACCOUNT_ID>/<GITHUB_ORG>/<GITHUB_REPO> to let
+# GitHub Actions assume a role via OIDC instead of using the static
+# AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY secrets in the workflow.
+# Once this works, delete the github-actions-ecr-push IAM user entirely.
+########################################
+
+# resource "aws_iam_openid_connect_provider" "github" {
+#   url             = "https://token.actions.githubusercontent.com"
+#   client_id_list  = ["sts.amazonaws.com"]
+#   thumbprint_list = ["6938fd4d98bab03faadb97b34396831e3780aea1"]
+# }
+#
+# resource "aws_iam_role" "github_actions" {
+#   name = "${var.project_name}-github-actions-role"
+#
+#   assume_role_policy = jsonencode({
+#     Version = "2012-10-17"
+#     Statement = [{
+#       Effect = "Allow"
+#       Principal = {
+#         Federated = aws_iam_openid_connect_provider.github.arn
+#       }
+#       Action = "sts:AssumeRoleWithWebIdentity"
+#       Condition = {
+#         StringEquals = {
+#           "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
+#         }
+#         StringLike = {
+#           "token.actions.githubusercontent.com:sub" = "repo:<GITHUB_ORG>/<GITHUB_REPO>:ref:refs/heads/main"
+#         }
+#       }
+#     }]
+#   })
+# }

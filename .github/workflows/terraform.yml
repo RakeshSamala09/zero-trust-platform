@@ -31,6 +31,12 @@ env:
 jobs:
   # ---------------------------------------------------------------------
   # 1. Validate + Plan -> runs on every push and every PR into main
+  #
+  # NOTE ON STATE: backend.tf (S3 + DynamoDB) must already exist in
+  # TF_WORKING_DIR before this job runs — see bootstrap-backend.tf,
+  # applied once, separately, ahead of time. `terraform init` below
+  # will automatically configure the S3 backend + DynamoDB lock from
+  # that file; no extra flags needed as long as backend.tf is committed.
   # ---------------------------------------------------------------------
   plan:
     name: Terraform Plan
@@ -66,6 +72,8 @@ jobs:
 
       - name: Terraform Init
         id: init
+        # backend.tf in TF_WORKING_DIR wires this to the S3 bucket +
+        # DynamoDB lock table created by bootstrap-backend.tf.
         run: terraform init -input=false
 
       - name: Terraform Validate
@@ -116,6 +124,9 @@ jobs:
   # 2. Apply -> runs ONLY after a push (merge) to main, and PAUSES
   #    for manual approval because it targets the "production" environment
   #    which you configure with required reviewers in repo settings.
+  #
+  # DynamoDB locking (via backend.tf) means a concurrent plan/apply run
+  # elsewhere will block here instead of corrupting state.
   # ---------------------------------------------------------------------
   apply:
     name: Terraform Apply
@@ -157,7 +168,6 @@ jobs:
       - name: Terraform Apply
         run: terraform apply -input=false -auto-approve tfplan
 
-
       - name: Wait for EC2 instances
         run: |
           sleep 90
@@ -181,4 +191,4 @@ jobs:
       - name: Run Ansible Playbook
         working-directory: ../ansible
         run: |
-          ansible-playbook -i inventory.ini playbook.yml  
+          ansible-playbook -i inventory.ini playbook.yml

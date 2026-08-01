@@ -1,0 +1,241 @@
+{
+  "version": 4,
+  "terraform_version": "1.15.8",
+  "serial": 305,
+  "lineage": "0e6b692c-af0d-9b1b-1fa6-9976f46d7d4b",
+  "outputs": {
+    "estimated_hourly_cost": {
+      "value": "3x t3.medium = ~$0.125/hr total (~$3/day if left running). STOP or DESTROY instances when not actively working.",
+      "type": "string"
+    },
+    "oidc_issuer_url": {
+      "value": "https://zero-trust-platform-oidc-449902674551.s3.ap-south-1.amazonaws.com",
+      "type": "string"
+    },
+    "oidc_s3_bucket": {
+      "value": "zero-trust-platform-oidc-449902674551",
+      "type": "string"
+    }
+  },
+  "resources": [
+    {
+      "mode": "data",
+      "type": "aws_ami",
+      "name": "ubuntu",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "allow_unsafe_filter": null,
+            "architecture": "x86_64",
+            "arn": "arn:aws:ec2:ap-south-1::image/ami-0aa761682283b4cc8",
+            "block_device_mappings": [
+              {
+                "device_name": "/dev/sda1",
+                "ebs": {
+                  "delete_on_termination": "true",
+                  "encrypted": "false",
+                  "iops": "0",
+                  "snapshot_id": "snap-057d1cfb8044888f3",
+                  "throughput": "0",
+                  "volume_initialization_rate": "0",
+                  "volume_size": "8",
+                  "volume_type": "gp2"
+                },
+                "no_device": "",
+                "virtual_name": ""
+              },
+              {
+                "device_name": "/dev/sdb",
+                "ebs": {},
+                "no_device": "",
+                "virtual_name": "ephemeral0"
+              },
+              {
+                "device_name": "/dev/sdc",
+                "ebs": {},
+                "no_device": "",
+                "virtual_name": "ephemeral1"
+              }
+            ],
+            "boot_mode": "uefi-preferred",
+            "creation_date": "2026-07-31T07:24:53.000Z",
+            "deprecation_time": "2028-07-31T07:24:53.000Z",
+            "description": "Canonical, Ubuntu, 22.04, amd64 jammy image",
+            "ena_support": true,
+            "executable_users": null,
+            "filter": [
+              {
+                "name": "name",
+                "values": [
+                  "ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"
+                ]
+              },
+              {
+                "name": "virtualization-type",
+                "values": [
+                  "hvm"
+                ]
+              }
+            ],
+            "hypervisor": "xen",
+            "id": "ami-0aa761682283b4cc8",
+            "image_id": "ami-0aa761682283b4cc8",
+            "image_location": "amazon/ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-20260731",
+            "image_owner_alias": "amazon",
+            "image_type": "machine",
+            "imds_support": "",
+            "include_deprecated": false,
+            "kernel_id": "",
+            "last_launched_time": "",
+            "most_recent": true,
+            "name": "ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-20260731",
+            "name_regex": null,
+            "owner_id": "099720109477",
+            "owners": [
+              "099720109477"
+            ],
+            "platform": "",
+            "platform_details": "Linux/UNIX",
+            "product_codes": [],
+            "public": true,
+            "ramdisk_id": "",
+            "region": "ap-south-1",
+            "root_device_name": "/dev/sda1",
+            "root_device_type": "ebs",
+            "root_snapshot_id": "snap-057d1cfb8044888f3",
+            "sriov_net_support": "simple",
+            "state": "available",
+            "state_reason": {
+              "code": "UNSET",
+              "message": "UNSET"
+            },
+            "tags": {},
+            "timeouts": null,
+            "tpm_support": "",
+            "uefi_data": null,
+            "usage_operation": "RunInstances",
+            "virtualization_type": "hvm"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0
+        }
+      ]
+    },
+    {
+      "mode": "data",
+      "type": "aws_caller_identity",
+      "name": "current",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "account_id": "449902674551",
+            "arn": "arn:aws:iam::449902674551:root",
+            "id": "449902674551",
+            "user_id": "449902674551"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0
+        }
+      ]
+    },
+    {
+      "mode": "data",
+      "type": "tls_certificate",
+      "name": "oidc_s3_cert",
+      "provider": "provider[\"registry.terraform.io/hashicorp/tls\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "certificates": [
+              {
+                "cert_pem": "-----BEGIN CERTIFICATE-----\nMIIEkjCCA3qgAwIBAgITBn+USionzfP6wq4rAfkI7rnExjANBgkqhkiG9w0BAQsF\nADCBmDELMAkGA1UEBhMCVVMxEDAOBgNVBAgTB0FyaXpvbmExEzARBgNVBAcTClNj\nb3R0c2RhbGUxJTAjBgNVBAoTHFN0YXJmaWVsZCBUZWNobm9sb2dpZXMsIEluYy4x\nOzA5BgNVBAMTMlN0YXJmaWVsZCBTZXJ2aWNlcyBSb290IENlcnRpZmljYXRlIEF1\ndGhvcml0eSAtIEcyMB4XDTE1MDUyNTEyMDAwMFoXDTM3MTIzMTAxMDAwMFowOTEL\nMAkGA1UEBhMCVVMxDzANBgNVBAoTBkFtYXpvbjEZMBcGA1UEAxMQQW1hem9uIFJv\nb3QgQ0EgMTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBALJ4gHHKeNXj\nca9HgFB0fW7Y14h29Jlo91ghYPl0hAEvrAIthtOgQ3pOsqTQNroBvo3bSMgHFzZM\n9O6II8c+6zf1tRn4SWiw3te5djgdYZ6k/oI2peVKVuRF4fn9tBb6dNqcmzU5L/qw\nIFAGbHrQgLKm+a/sRxmPUDgH3KKHOVj4utWp+UhnMJbulHheb4mjUcAwhmahRWa6\nVOujw5H5SNz/0egwLX0tdHA114gk957EWW67c4cX8jJGKLhD+rcdqsq08p8kDi1L\n93FcXmn/6pUCyziKrlA4b9v7LWIbxcceVOF34GfID5yHI9Y/QCB/IIDEgEw+OyQm\njgSubJrIqg0CAwEAAaOCATEwggEtMA8GA1UdEwEB/wQFMAMBAf8wDgYDVR0PAQH/\nBAQDAgGGMB0GA1UdDgQWBBSEGMyFNOy8DJSULghZnMeyEE4KCDAfBgNVHSMEGDAW\ngBScXwDfqgHXMCs4iKK4bUqc8hGRgzB4BggrBgEFBQcBAQRsMGowLgYIKwYBBQUH\nMAGGImh0dHA6Ly9vY3NwLnJvb3RnMi5hbWF6b250cnVzdC5jb20wOAYIKwYBBQUH\nMAKGLGh0dHA6Ly9jcnQucm9vdGcyLmFtYXpvbnRydXN0LmNvbS9yb290ZzIuY2Vy\nMD0GA1UdHwQ2MDQwMqAwoC6GLGh0dHA6Ly9jcmwucm9vdGcyLmFtYXpvbnRydXN0\nLmNvbS9yb290ZzIuY3JsMBEGA1UdIAQKMAgwBgYEVR0gADANBgkqhkiG9w0BAQsF\nAAOCAQEAYjdCXLwQtT6LLOkMm2xF4gcAevnFWAu5CIw+7bMlPLVvUOTNNWqnkzSW\nMiGpSESrnO09tKpzbeR/FoCJbM8oAxiDR3mjEH4wW6w7sGDgd9QIpuEdfF7Au/ma\neyKdpwAJfqxGF4PcnCZXmTA5YpaP7dreqsXMGz7KQ2hsVxa81Q4gLv7/wmpdLqBK\nbRRYh5TmOTFffHPLkIhqhBGWJ6bt2YFGpn6jcgAKUj6DiAdjd4lpFw85hdKrCEVN\n0FE6/V1dN2RMfjCyVSRCnTawXZwXgWHxyvkQAiSr6w10kY17RSlQOYiypok1JR4U\nakcjMS9cmvqtmg5iUaQqqcT5NJ0hGA==\n-----END CERTIFICATE-----\n",
+                "is_ca": true,
+                "issuer": "CN=Starfield Services Root Certificate Authority - G2,O=Starfield Technologies\\, Inc.,L=Scottsdale,ST=Arizona,C=US",
+                "max_path_length": -1,
+                "not_after": "2037-12-31T01:00:00Z",
+                "not_before": "2015-05-25T12:00:00Z",
+                "public_key_algorithm": "RSA",
+                "serial_number": "144918191876577076464031512351042010504348870",
+                "sha1_fingerprint": "06b25927c42a721631c1efd9431e648fa62e1e39",
+                "signature_algorithm": "SHA256-RSA",
+                "subject": "CN=Amazon Root CA 1,O=Amazon,C=US",
+                "version": 3
+              },
+              {
+                "cert_pem": "-----BEGIN CERTIFICATE-----\nMIIEXjCCA0agAwIBAgITB3MSOAudZoijOx7Zv5zNpo4ODzANBgkqhkiG9w0BAQsF\nADA5MQswCQYDVQQGEwJVUzEPMA0GA1UEChMGQW1hem9uMRkwFwYDVQQDExBBbWF6\nb24gUm9vdCBDQSAxMB4XDTIyMDgyMzIyMjEyOFoXDTMwMDgyMzIyMjEyOFowPDEL\nMAkGA1UEBhMCVVMxDzANBgNVBAoTBkFtYXpvbjEcMBoGA1UEAxMTQW1hem9uIFJT\nQSAyMDQ4IE0wMTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAOtxLKnL\nH4gokjIwr4pXD3i3NyWVVYesZ1yX0yLI2qIUZ2t88Gfa4gMqs1YSXca1R/lnCKeT\nepWSGA+0+fkQNpp/L4C2T7oTTsddUx7g3ZYzByDTlrwS5HRQQqEFE3O1T5tEJP4t\nf+28IoXsNiEzl3UGzicYgtzj2cWCB41eJgEmJmcf2T8TzzK6a614ZPyq/w4CPAff\nnAV4coz96nW3AyiE2uhuB4zQUIXvgVSycW7sbWLvj5TDXunEpNCRwC4kkZjK7rol\njtT2cbb7W2s4Bkg3R42G3PLqBvt2N32e/0JOTViCk8/iccJ4sXqrS1uUN4iB5Nmv\nJK74csVl+0u0UecCAwEAAaOCAVowggFWMBIGA1UdEwEB/wQIMAYBAf8CAQAwDgYD\nVR0PAQH/BAQDAgGGMB0GA1UdJQQWMBQGCCsGAQUFBwMBBggrBgEFBQcDAjAdBgNV\nHQ4EFgQUgbgOY4qJEhjl+js7UJWf5uWQE4UwHwYDVR0jBBgwFoAUhBjMhTTsvAyU\nlC4IWZzHshBOCggwewYIKwYBBQUHAQEEbzBtMC8GCCsGAQUFBzABhiNodHRwOi8v\nb2NzcC5yb290Y2ExLmFtYXpvbnRydXN0LmNvbTA6BggrBgEFBQcwAoYuaHR0cDov\nL2NydC5yb290Y2ExLmFtYXpvbnRydXN0LmNvbS9yb290Y2ExLmNlcjA/BgNVHR8E\nODA2MDSgMqAwhi5odHRwOi8vY3JsLnJvb3RjYTEuYW1hem9udHJ1c3QuY29tL3Jv\nb3RjYTEuY3JsMBMGA1UdIAQMMAowCAYGZ4EMAQIBMA0GCSqGSIb3DQEBCwUAA4IB\nAQCtAN4CBSMuBjJitGuxlBbkEUDeK/pZwTXv4KqPK0G50fOHOQAd8j21p0cMBgbG\nkfMHVwLU7b0XwZCav0h1ogdPMN1KakK1DT0VwA/+hFvGPJnMV1Kx2G4S1ZaSk0uU\n5QfoiYIIano01J5k4T2HapKQmmOhS/iPtuo00wW+IMLeBuKMn3OLn005hcrOGTad\nhcmeyfhQP7Z+iKHvyoQGi1C0ClymHETx/chhQGDyYSWqB/THwnN15AwLQo0E5V9E\nSJlbe4mBlqeInUsNYugExNf+tOiybcrswBy8OFsd34XOW3rjSUtsuafd9AWySa3h\nxRRrwszrzX/WWGm6wyB+f7C4\n-----END CERTIFICATE-----\n",
+                "is_ca": true,
+                "issuer": "CN=Amazon Root CA 1,O=Amazon,C=US",
+                "max_path_length": 0,
+                "not_after": "2030-08-23T22:21:28Z",
+                "not_before": "2022-08-23T22:21:28Z",
+                "public_key_algorithm": "RSA",
+                "serial_number": "166129328851546858514271303855646110030630415",
+                "sha1_fingerprint": "2ad974a775f73cbdbbd8f5ac3a49255fa8fb1f8c",
+                "signature_algorithm": "SHA256-RSA",
+                "subject": "CN=Amazon RSA 2048 M01,O=Amazon,C=US",
+                "version": 3
+              },
+              {
+                "cert_pem": "-----BEGIN CERTIFICATE-----\nMIIIEDCCBvigAwIBAgIQAj9mq4505PIga7Z8bBWjtjANBgkqhkiG9w0BAQsFADA8\nMQswCQYDVQQGEwJVUzEPMA0GA1UEChMGQW1hem9uMRwwGgYDVQQDExNBbWF6b24g\nUlNBIDIwNDggTTAxMB4XDTI2MDcxNTAwMDAwMFoXDTI3MDEyODIzNTk1OVowKDEm\nMCQGA1UEAwwdKi5zMy5hcC1zb3V0aC0xLmFtYXpvbmF3cy5jb20wggEiMA0GCSqG\nSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDY+jqJkxdSjA7YrC3dOEmntRVWeBr3BAq6\nNWtEWjIUU+nIPqkvM1vBcVQaVvQvtz3t+Y7TT/EvLRgTCGilnbTmupz3kPpw9l8l\nedEC2qK2Jzf0KHPGxqTgXMfD0thKlCylpd8D6vCQpNmHCZr700k6BlWbZynlAHlp\nhUUadGUa2QfgySxYj1ZArvjGDovxM1GDphs6aXbAUVtQe96hQC8ENPtmmWKVVFpG\noTsxYt+kVUfQIDKREwHz9B0E2DdwzW7sb7G8fFdjNpQ5wAEs+t0nYByD3afQvlxB\nfaZ9z5NfP+MZ/K7kZLC5wNbLuVzlHweEyeANpvosPfWJ0Bwg35R9AgMBAAGjggUg\nMIIFHDAfBgNVHSMEGDAWgBSBuA5jiokSGOX6OztQlZ/m5ZAThTAdBgNVHQ4EFgQU\nGwH+W9KysC2o//Y5uK5AlxFHP0gwggJZBgNVHREEggJQMIICTIIdKi5zMy5hcC1z\nb3V0aC0xLmFtYXpvbmF3cy5jb22CJnMzLWRlcHJlY2F0ZWQuYXAtc291dGgtMS5h\nbWF6b25hd3MuY29tghIqLnMzLmFtYXpvbmF3cy5jb22CHSouczMtYXAtc291dGgt\nMS5hbWF6b25hd3MuY29tgikqLnMzLWFjY2Vzc3BvaW50LmFwLXNvdXRoLTEuYW1h\nem9uYXdzLmNvbYItczMtY29udHJvbC5kdWFsc3RhY2suYXAtc291dGgtMS5hbWF6\nb25hd3MuY29tghtzMy1hcC1zb3V0aC0xLmFtYXpvbmF3cy5jb22CEHMzLmFtYXpv\nbmF3cy5jb22CKCouczMtZGVwcmVjYXRlZC5hcC1zb3V0aC0xLmFtYXpvbmF3cy5j\nb22CLyouczMtY29udHJvbC5kdWFsc3RhY2suYXAtc291dGgtMS5hbWF6b25hd3Mu\nY29tgicqLnMzLmR1YWxzdGFjay5hcC1zb3V0aC0xLmFtYXpvbmF3cy5jb22CJSou\nczMtY29udHJvbC5hcC1zb3V0aC0xLmFtYXpvbmF3cy5jb22CJXMzLmR1YWxzdGFj\nay5hcC1zb3V0aC0xLmFtYXpvbmF3cy5jb22CG3MzLmFwLXNvdXRoLTEuYW1hem9u\nYXdzLmNvbYIjczMtY29udHJvbC5hcC1zb3V0aC0xLmFtYXpvbmF3cy5jb22CMyou\nczMtYWNjZXNzcG9pbnQuZHVhbHN0YWNrLmFwLXNvdXRoLTEuYW1hem9uYXdzLmNv\nbTATBgNVHSAEDDAKMAgGBmeBDAECATAOBgNVHQ8BAf8EBAMCBaAwEwYDVR0lBAww\nCgYIKwYBBQUHAwEwOwYDVR0fBDQwMjAwoC6gLIYqaHR0cDovL2NybC5yMm0wMS5h\nbWF6b250cnVzdC5jb20vcjJtMDEuY3JsMHUGCCsGAQUFBwEBBGkwZzAtBggrBgEF\nBQcwAYYhaHR0cDovL29jc3AucjJtMDEuYW1hem9udHJ1c3QuY29tMDYGCCsGAQUF\nBzAChipodHRwOi8vY3J0LnIybTAxLmFtYXpvbnRydXN0LmNvbS9yMm0wMS5jZXIw\nDAYDVR0TAQH/BAIwADCCAX8GCisGAQQB1nkCBAIEggFvBIIBawFpAHYATGPcmOWc\nHauI9h6KPd6uj6tEozd7X5uUw/uhnPzBviYAAAGfZUBMmgAABAMARzBFAiAMluSK\nx/XQ22TAXTfUUcVy54DUsDlsxOfWRerdEPABkAIhAPAb1XiL10NXEydYCWwLzUj6\nm46LWWknvMeZuuXdExBWAHcA1tWNqdAXU/NqSqDHV0kCr+vH3CzTjNn3ZMgMiRke\nnwIAAAGfZUBNSQAABAMASDBGAiEAgkyMtBAW5eYRSRZxtLlaaWJbyfoMKH2Sv4dp\nP0uPjeUCIQDEnN3H11SRLb5MDzMU0EZJ60J5+H1MnWuUvSKL7Ll53QB2AByfaCzp\n+vBFaVD4G5aKh93bMhDYTObIsuOCUkrEz1mfAAABn2VATXQAAAQDAEcwRQIhAPm2\n1u8ndPNooYnlWUaG2M5B2c/wW/Qwz0wzih9stlDmAiB0YiqxdaiNqHQH9/OkSSuX\npUP1tAx3aNsWrvK3RbjMhDANBgkqhkiG9w0BAQsFAAOCAQEArBMgCg9sEzDZmSKG\nCdHPglf+u67Du2SH5ostlE74xzG+AgiFe3zV+1S82FEI1AoAm7nCQnIRJM1k346y\n9q4PUllsRhaWAxqMpPyKoPWV+ygy4GU6Qvg9yCHoFBENnwIeaObCAUJiYaUvBJCZ\n08sD+0j96UgKbbrnaiYSnhAKBxF8xOOgVMO0qbuSe5Dm7IvcR5gI5fq2w/3bncrh\nRxbXorgvgyF+cOq8AEe4W88UpN7xXjnnTP6OmisQ0Kl6gQ7nOvQShCg52JUYfFkL\nve4yTv8vNXnagN28JowiBoEir/BLSxR9olMzT6Xo1r263snBV4ktBiFUGRJcMP3H\n91falQ==\n-----END CERTIFICATE-----\n",
+                "is_ca": false,
+                "issuer": "CN=Amazon RSA 2048 M01,O=Amazon,C=US",
+                "max_path_length": -1,
+                "not_after": "2027-01-28T23:59:59Z",
+                "not_before": "2026-07-15T00:00:00Z",
+                "public_key_algorithm": "RSA",
+                "serial_number": "2987653091541076251702624842180567990",
+                "sha1_fingerprint": "53c413b8d5f55af89ad9812aed6f905cf0ca1410",
+                "signature_algorithm": "SHA256-RSA",
+                "subject": "CN=*.s3.ap-south-1.amazonaws.com",
+                "version": 3
+              }
+            ],
+            "content": null,
+            "id": "d15ce61a18bd8ba9f58529d9962c567fc2960dd6",
+            "url": "https://s3.ap-south-1.amazonaws.com",
+            "verify_chain": true
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_iam_user_policy_attachment",
+      "name": "github_actions_s3",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "id": "github-actions-ecr-push/arn:aws:iam::aws:policy/AmazonS3FullAccess",
+            "policy_arn": "arn:aws:iam::aws:policy/AmazonS3FullAccess",
+            "user": "github-actions-ecr-push"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "identity": {
+            "account_id": "449902674551",
+            "policy_arn": "arn:aws:iam::aws:policy/AmazonS3FullAccess",
+            "user": "github-actions-ecr-push"
+          },
+          "private": "bnVsbA=="
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_key_pair",
+      "name": "generated",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": []
+    }
+  ],
+  "check_results": null
+}
