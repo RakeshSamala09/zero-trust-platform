@@ -1,0 +1,28 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+
+metadata:
+  name: zero-trust-alert-rules
+  namespace: monitoring
+
+spec:
+  groups:
+  - name: zero-trust-pod-alerts
+
+    rules:
+
+    - alert: PodCrashLoopBackOff
+
+      expr: |
+        kube_pod_container_status_waiting_reason{
+          reason="CrashLoopBackOff"
+        } > 0
+
+      for: 5m
+
+      labels:
+        severity: critical
+
+      annotations:
+        summary: "Pod is in CrashLoopBackOff"
+        description: "Pod {{ $labels.namespace }}/{{ $labels.pod }} is continuously crashing"
