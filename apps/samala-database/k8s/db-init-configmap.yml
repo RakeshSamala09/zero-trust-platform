@@ -1,0 +1,45 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: samala-db-init
+data:
+  init.sql: |
+    CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(150) NOT NULL,
+        email VARCHAR(150) UNIQUE NOT NULL,
+        password_hash TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT NOW()
+    );
+
+    CREATE TABLE IF NOT EXISTS products (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(200) NOT NULL,
+        description TEXT,
+        price NUMERIC(10, 2) NOT NULL,
+        stock INTEGER DEFAULT 0,
+        image_url TEXT,
+        created_at TIMESTAMP DEFAULT NOW()
+    );
+
+    CREATE TABLE IF NOT EXISTS orders (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id),
+        total_amount NUMERIC(10, 2) NOT NULL,
+        status VARCHAR(30) DEFAULT 'PENDING',
+        created_at TIMESTAMP DEFAULT NOW()
+    );
+
+    CREATE TABLE IF NOT EXISTS order_items (
+        id SERIAL PRIMARY KEY,
+        order_id INTEGER REFERENCES orders(id) ON DELETE CASCADE,
+        product_id INTEGER REFERENCES products(id),
+        quantity INTEGER NOT NULL,
+        price NUMERIC(10, 2) NOT NULL
+    );
+
+    INSERT INTO products (name, description, price, stock, image_url) VALUES
+    ('Samala T-Shirt', 'Comfortable cotton t-shirt', 499.00, 100, ''),
+    ('Samala Backpack', 'Durable everyday backpack', 1499.00, 50, ''),
+    ('Samala Water Bottle', 'Stainless steel bottle', 349.00, 200, '')
+    ON CONFLICT DO NOTHING;

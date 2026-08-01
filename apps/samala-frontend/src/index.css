@@ -1,0 +1,32 @@
+body {
+  margin: 0;
+  font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  background: #f7f7f9;
+}
+.header {
+  background: #1a1a2e;
+  color: #fff;
+  padding: 24px;
+  text-align: center;
+}
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+  padding: 24px;
+}
+.product-card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+.price {
+  font-weight: bold;
+  color: #e94560;
+}
+.error {
+  color: red;
+  text-align: center;
+}
+

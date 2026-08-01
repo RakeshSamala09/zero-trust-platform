@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: samala-frontend
+  labels:
+    app: samala-frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: samala-frontend
+  template:
+    metadata:
+      labels:
+        app: samala-frontend
+    spec:
+      containers:
+        - name: frontend
+          image: 449902674551.dkr.ecr.ap-south-1.amazonaws.com/samala-frontend:latest   # <-- replace with your registry image after build+push
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 250m
+              memory: 128Mi
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 20
+
