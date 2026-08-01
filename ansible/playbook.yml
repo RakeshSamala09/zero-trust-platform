@@ -206,7 +206,7 @@
       changed_when: true
 
     - name: Apply the ArgoCD Application for the sample app
-      command: kubectl apply -f /home/ubuntu/zero-trust-platform/argocd-application.yml
+      command: kubectl apply -f /home/ubuntu/zero-trust-platform/argocd/applications/sample-app.yaml
       changed_when: true
 
 - name: Install Istio service mesh
