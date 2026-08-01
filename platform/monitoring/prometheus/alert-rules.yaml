@@ -26,3 +26,74 @@ spec:
       annotations:
         summary: "Pod is in CrashLoopBackOff"
         description: "Pod {{ $labels.namespace }}/{{ $labels.pod }} is continuously crashing"
+    
+    - alert: NodeNotReady
+
+      expr: |
+        kube_node_status_condition{
+          condition="Ready",
+          status="true"
+        } == 0
+
+      for: 5m
+
+      labels:
+        severity: critical
+
+      annotations:
+        summary: "Kubernetes node is not ready"
+        description: "Node {{ $labels.node }} is not ready"
+
+
+    - alert: HighCPUUsage
+
+      expr: |
+        100 - (
+          avg by(instance)
+          (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100
+        ) > 85
+
+      for: 10m
+
+      labels:
+        severity: warning
+
+      annotations:
+        summary: "High CPU usage detected"
+        description: "CPU usage is above 85%"
+
+
+    - alert: HighMemoryUsage
+
+      expr: |
+        (
+          node_memory_MemAvailable_bytes
+          /
+          node_memory_MemTotal_bytes
+        ) < 0.15
+
+      for: 10m
+
+      labels:
+        severity: warning
+
+      annotations:
+        summary: "High memory usage detected"
+        description: "Available memory is below 15%"
+
+
+    - alert: DeploymentReplicaMismatch
+
+      expr: |
+        kube_deployment_spec_replicas
+        !=
+        kube_deployment_status_replicas_available
+
+      for: 10m
+
+      labels:
+        severity: warning
+
+      annotations:
+        summary: "Deployment replica mismatch"
+        description: "Deployment {{ $labels.namespace }}/{{ $labels.deployment }} replicas are not matching"
