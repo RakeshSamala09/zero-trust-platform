@@ -1,0 +1,144 @@
+---
+# Deploy Samala ecommerce apps with a specific image tag pulled from ECR.
+# This does NOT touch cluster bootstrap (playbook.yml handles that separately).
+#
+# Usage (run from wherever playbook.yml is normally run, e.g. GitHub Actions runner
+# or your admin machine — needs the same inventory.ini + vars.yml as playbook.yml):
+#
+#   Deploy database only (first time / rarely changes):
+#     ansible-playbook deploy-samala.yml --tags database
+#
+#   Deploy backend with a specific image tag (called by samala-backend-ci.yml):
+#     ansible-playbook deploy-samala.yml --tags backend --extra-vars "backend_image_tag=<git-sha>"
+#
+#   Deploy frontend with a specific image tag (called by samala-frontend-ci.yml):
+#     ansible-playbook deploy-samala.yml --tags frontend --extra-vars "frontend_image_tag=<git-sha>"
+
+- name: Deploy Samala apps to the cluster
+  hosts: master
+  become: true
+  become_user: ubuntu
+  vars_files:
+    - vars.yml
+  vars:
+    backend_image_tag: "latest"
+    frontend_image_tag: "latest"
+    samala_namespace: "default"
+    ecr_registry: "{{ aws_account_id }}.dkr.ecr.{{ aws_region }}.amazonaws.com"
+  environment:
+    KUBECONFIG: /home/ubuntu/.kube/config
+  tasks:
+
+    # -----------------------------------------------------------------
+    # Always keep repo fresh so manifests (deployment.yml, k8s/*) are current
+    # -----------------------------------------------------------------
+    - name: Ensure app repo is up to date
+      git:
+        repo: "{{ github_repo_url }}"
+        dest: /home/ubuntu/zero-trust-platform
+        version: main
+        force: true
+      tags: [database, backend, frontend]
+
+    # -----------------------------------------------------------------
+    # Refresh the ECR pull secret (tokens expire after 12h, so this
+    # runs every deploy to make sure pulls don't start failing silently)
+    # -----------------------------------------------------------------
+    - name: Get ECR login password
+      command: aws ecr get-login-password --region {{ aws_region }}
+      register: ecr_password
+      changed_when: false
+      tags: [database, backend, frontend]
+
+    - name: Create/update ECR pull secret
+      command: >
+        kubectl create secret docker-registry ecr-pull-secret
+        --docker-server={{ ecr_registry }}
+        --docker-username=AWS
+        --docker-password={{ ecr_password.stdout }}
+        -n {{ samala_namespace }}
+        --dry-run=client -o yaml
+      register: secret_manifest
+      changed_when: false
+      tags: [database, backend, frontend]
+
+    - name: Apply the ECR pull secret
+      shell: |
+        echo '{{ secret_manifest.stdout }}' | kubectl apply -f -
+      changed_when: true
+      tags: [database, backend, frontend]
+
+    # -----------------------------------------------------------------
+    # Database — config/secret, init configmap, deployment, service
+    # Only needs to run once, or when the schema/config changes.
+    # -----------------------------------------------------------------
+    - name: Apply samala-database manifests
+      command: kubectl apply -f /home/ubuntu/zero-trust-platform/apps/samala-database/k8s/{{ item }}
+      loop:
+        - config-secret.yml
+        - db-init-configmap.yml
+        - deployment.yml
+        - service.yml
+      changed_when: true
+      tags: [database]
+
+    - name: Wait for samala-database rollout
+      command: kubectl rollout status deployment/samala-database -n {{ samala_namespace }} --timeout=180s
+      changed_when: false
+      tags: [database]
+
+    # -----------------------------------------------------------------
+    # Backend — apply manifests once (idempotent), then force the exact
+    # image tag CI just pushed, and wait for the rollout to finish.
+    # -----------------------------------------------------------------
+    - name: Apply samala-backend manifests
+      command: kubectl apply -f /home/ubuntu/zero-trust-platform/apps/samala-backend/k8s/{{ item }}
+      loop:
+        - deployment.yml
+        - service.yml
+      changed_when: true
+      tags: [backend]
+
+    - name: Set samala-backend image to the tag CI just pushed
+      command: >
+        kubectl set image deployment/samala-backend
+        backend={{ ecr_registry }}/samala-backend:{{ backend_image_tag }}
+        -n {{ samala_namespace }}
+      changed_when: true
+      tags: [backend]
+
+    - name: Wait for samala-backend rollout
+      command: kubectl rollout status deployment/samala-backend -n {{ samala_namespace }} --timeout=180s
+      changed_when: false
+      tags: [backend]
+
+    # -----------------------------------------------------------------
+    # Frontend — same pattern
+    # -----------------------------------------------------------------
+    - name: Apply samala-frontend manifests
+      command: kubectl apply -f /home/ubuntu/zero-trust-platform/apps/samala-frontend/k8s/{{ item }}
+      loop:
+        - deployment.yaml
+        - service.yml
+      changed_when: true
+      tags: [frontend]
+
+    - name: Set samala-frontend image to the tag CI just pushed
+      command: >
+        kubectl set image deployment/samala-frontend
+        frontend={{ ecr_registry }}/samala-frontend:{{ frontend_image_tag }}
+        -n {{ samala_namespace }}
+      changed_when: true
+      tags: [frontend]
+
+    - name: Wait for samala-frontend rollout
+      command: kubectl rollout status deployment/samala-frontend -n {{ samala_namespace }} --timeout=180s
+      changed_when: false
+      tags: [frontend]
+
+    - name: Show deployed image tags
+      debug:
+        msg:
+          - "samala-backend:  {{ ecr_registry }}/samala-backend:{{ backend_image_tag }}"
+          - "samala-frontend: {{ ecr_registry }}/samala-frontend:{{ frontend_image_tag }}"
+      tags: [database, backend, frontend]
