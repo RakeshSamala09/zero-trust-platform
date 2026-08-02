@@ -97,7 +97,7 @@ jobs:
                         -t ${{ steps.ecr-login.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest .
 
       - name: Trivy vulnerability scan
-        uses: aquasecurity/trivy-action@0.24.0
+        uses: aquasecurity/trivy-action@0.35.0
         with:
           image-ref: ${{ steps.ecr-login.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
           format: "table"
@@ -107,7 +107,7 @@ jobs:
 
       - name: Trivy scan (SARIF for GitHub Security tab)
         if: always()
-        uses: aquasecurity/trivy-action@0.24.0
+        uses: aquasecurity/trivy-action@0.35.0
         with:
           image-ref: ${{ steps.ecr-login.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
           format: "sarif"
