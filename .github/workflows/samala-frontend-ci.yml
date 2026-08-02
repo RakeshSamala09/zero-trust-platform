@@ -29,6 +29,9 @@ jobs:
         uses: SonarSource/sonarqube-scan-action@v4
         with:
           projectBaseDir: ${{ env.WORKDIR }}
+          args: >
+            -Dsonar.organization=rakeshsamala09
+            -Dsonar.projectKey=samala-frontend
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
