@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: samala-database
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  project: default
+
+  source:
+    repoURL: https://github.com/RakeshSamala09/zero-trust-platform.git
+    targetRevision: main
+    path: apps/samala-database/k8s
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: samala-db
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
