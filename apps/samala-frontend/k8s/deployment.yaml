@@ -14,6 +14,8 @@ spec:
       labels:
         app: samala-frontend
     spec:
+      imagePullSecrets:
+        - name: ecr-secret
       containers:
         - name: frontend
           image: 449902674551.dkr.ecr.ap-south-1.amazonaws.com/samala-frontend:latest   # <-- replace with your registry image after build+push

@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: samala-frontend
 spec:
-  type: ClusterIP
+  type: LoadBalancer
   selector:
     app: samala-frontend
   ports:
