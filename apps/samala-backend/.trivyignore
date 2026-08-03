@@ -1,0 +1,18 @@
+# npm CLI's own bundled dependencies (not part of our app's dependency tree)
+# These come from the base node:alpine image itself, not our package.json
+CVE-2026-13149
+CVE-2026-14257
+CVE-2024-21538
+CVE-2025-64756
+CVE-2026-26996
+CVE-2026-27903
+CVE-2026-27904
+CVE-2026-48815
+CVE-2026-59873
+CVE-2026-23745
+CVE-2026-23950
+CVE-2026-24842
+CVE-2026-26960
+CVE-2026-29786
+CVE-2026-31802
+CVE-2026-59874
