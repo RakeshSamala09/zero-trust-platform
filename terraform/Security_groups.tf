@@ -171,3 +171,4 @@ resource "aws_security_group" "k8s_worker" {
     Name = "${var.project_name}-worker-sg"
   }
 }
+
