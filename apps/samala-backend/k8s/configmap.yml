@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: samala-config
+data:
+  DB_HOST: "samala-database.samala-db.svc.cluster.local"
+  DB_PORT: "5432"
+  DB_NAME: "samala_db"
