@@ -1,6 +1,6 @@
 FROM node:20-alpine AS build
 WORKDIR /app
-
+RUN apk update && apk upgrade --no-cache
 COPY package*.json ./
 RUN npm install
 

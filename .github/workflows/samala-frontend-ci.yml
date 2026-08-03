@@ -75,6 +75,7 @@ jobs:
     permissions:
       id-token: write
       contents: read
+      security-events: write
     outputs:
       image_tag: ${{ github.sha }}
     steps:
@@ -104,6 +105,7 @@ jobs:
           severity: "CRITICAL,HIGH"
           exit-code: "1"
           ignore-unfixed: true
+          trivyignores: ${{ env.WORKDIR }}/.trivyignore
 
       - name: Trivy scan (SARIF for GitHub Security tab)
         if: always()
