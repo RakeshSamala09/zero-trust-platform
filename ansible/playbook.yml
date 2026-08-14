@@ -206,7 +206,7 @@
       changed_when: true
 
     - name: Apply the ArgoCD Application for the sample app
-      command: kubectl apply -f /home/ubuntu/zero-trust-platform/argocd/applications/sample-app.yaml
+      command: kubectl apply -f /home/ubuntu/zero-trust-platform/argocd/applications/
       changed_when: true
 
     - name: Apply the ArgoCD Application for monitoring rules
