@@ -87,3 +87,4 @@ Change something in `k8s/deployment.yaml` (e.g. `replicas: 3`), commit,
 push. Within ~3 minutes (default ArgoCD poll interval) or instantly if you
 run `argocd app sync sample-app`, the cluster updates itself — no manual
 `kubectl apply` needed. Screenshot this for your resume/LinkedIn proof.
+
