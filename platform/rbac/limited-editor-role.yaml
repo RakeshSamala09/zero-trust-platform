@@ -1,0 +1,15 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: limited-editor-role
+  namespace: ecommerce
+rules:
+- apiGroups: [""]
+  resources: ["configmaps"]
+  verbs: ["get", "list", "watch", "create", "update", "patch"]
+- apiGroups: ["apps"]
+  resources: ["deployments"]
+  verbs: ["get", "list", "watch", "create", "update", "patch"]
+# "secrets" is intentionally omitted from every rule above.
+# In Kubernetes RBAC, access is additive only - a resource that is
+# never listed in any rule is never accessible, no explicit "deny" needed.
