@@ -89,3 +89,4 @@ run `argocd app sync sample-app`, the cluster updates itself — no manual
 `kubectl apply` needed. Screenshot this for your resume/LinkedIn proof.
 
 
+
